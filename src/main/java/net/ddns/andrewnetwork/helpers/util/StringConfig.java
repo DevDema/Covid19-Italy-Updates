@@ -3,6 +3,8 @@ package net.ddns.andrewnetwork.helpers.util;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -19,7 +21,7 @@ public final class StringConfig {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
         String dateString = simpleDateFormat.format(date);
 
-        StringBuilder finalSB = new StringBuilder("Aggiornamento situazione Covid-19 del " + dateString + ":");
+        StringBuilder finalSB = new StringBuilder("<b>[AGGIORNAMENTO GIORNALIERO]</b>\nAggiornamento situazione Covid-19 del " + dateString + ":");
 
         finalSB.append(italyData);
 
@@ -32,5 +34,21 @@ public final class StringConfig {
                 "<a href=\"https://www.worldometers.info/coronavirus/\">WorldOMeters: Dati dall'Italia e dal Mondo</a>");
 
         return finalSB.toString();
+    }
+
+    public static String formatNumber(int number) {
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
+        decimalFormatSymbols.setGroupingSeparator('.');
+
+        return formatter.format(number);
+    }
+
+    public static String getStatusEmojiCode(int number) {
+        return number < 0 ? "\\xE2\\x9C\\x85" : "\\xE2\\x9A\\xA0";
+    }
+
+    public static String getItalyEmoji() {
+        return "&#1F613;";
     }
 }
