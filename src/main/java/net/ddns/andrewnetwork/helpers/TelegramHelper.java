@@ -14,7 +14,7 @@ public class TelegramHelper {
 
     public static boolean sendMessage(String message) {
         SendResponse response = bot.execute(new SendMessage(getChannelID(), message).parseMode(ParseMode.HTML));
-
+        //test
         return response.isOk();
     }
 
