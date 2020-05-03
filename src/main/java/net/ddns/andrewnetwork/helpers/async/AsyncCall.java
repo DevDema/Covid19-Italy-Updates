@@ -15,7 +15,6 @@ public final class AsyncCall {
         return Single.create(emitter -> {
             CovidItaData data = apiHelper.getItalyData();
 
-
             emitter.onSuccess(data);
         });
     }

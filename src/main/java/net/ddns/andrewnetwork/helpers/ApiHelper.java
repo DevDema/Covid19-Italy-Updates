@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import net.ddns.andrewnetwork.helpers.util.DateDeserializer;
+import net.ddns.andrewnetwork.helpers.util.JsonUtil;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 import rx.Observable;
@@ -19,10 +20,6 @@ import java.util.logging.Logger;
 import static java.util.logging.Logger.GLOBAL_LOGGER_NAME;
 
 public final class ApiHelper {
-
-    private static final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(Date.class, new DateDeserializer())
-            .create();
 
     private static final String ITALY_DATA_URL = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-andamento-nazionale-latest.json";
     private static final String REGIONS_DATA_URL = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni-latest.json";
@@ -47,7 +44,7 @@ public final class ApiHelper {
         try {
             String data = readFromUrl(ITALY_DATA_URL);
 
-            List<CovidItaData> list =  gson.fromJson(data, new TypeToken<List<CovidItaData>>(){}.getType());
+            List<CovidItaData> list =  JsonUtil.getGson().fromJson(data, new TypeToken<List<CovidItaData>>(){}.getType());
 
             return list.get(0);
         } catch (IOException e) {
@@ -61,7 +58,7 @@ public final class ApiHelper {
         try {
             String data = readFromUrl(REGIONS_DATA_URL);
 
-            return gson.fromJson(data, new TypeToken<List<CovidRegionData>>(){}.getType());
+            return JsonUtil.getGson().fromJson(data, new TypeToken<List<CovidRegionData>>(){}.getType());
         } catch (IOException e) {
             Logger.getLogger(GLOBAL_LOGGER_NAME).warning("Malformed Italy Regions data.");
 

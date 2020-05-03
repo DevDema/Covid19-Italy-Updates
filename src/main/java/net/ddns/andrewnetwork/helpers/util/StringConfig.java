@@ -16,6 +16,11 @@ public final class StringConfig {
     public static final String EXCEPTION_MULTIPLE_LANGUAGES = "Only one language must be specified.";
     public static final String EXCEPTION_UNSUPPORTED_LANGUAGE = "The only language supported is ITA.";
     public static final String EXCEPTION_MISSING_ARGUMENTS_OPTION = "Missing arguments for option -";
+    public static final String EXCEPTION_DELAY_MISSING = "Missing -d arguments. Format: -d LONG_DELAY SHORT_DELAY";
+    public static final String EXCEPTION_MANY_ARGS_OPTION = "Too much arguments for option -%c" + " Required: %d";
+    public static final String EXCEPTION_OPTION_NUMBER_FORMAT = "Incorrect number format for option -";
+    public static final String EXCEPTION_UNRECOGNIZED = "Unrecognized option -";
+    public static final String DAEMON_MODE_WAITING = "Daemon Mode, waiting...";
 
     public static String buildFinalMessage(Date date, CovidItaData italyData, List<CovidRegionData> regionDataList) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
