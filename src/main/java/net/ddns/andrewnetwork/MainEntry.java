@@ -18,7 +18,7 @@ public class MainEntry {
     private static long DELAY_SHORT = 15*60*1000L; // 15 MINUTES
     private static int INTERVAL_SHORT_DELAY_MINUTES = 120; // 2 HOURS
     private static boolean DEBUG_MODE = false;
-    private static final String OPTION_PATTERN = "-[a-z,A-Z]";
+    private static final String OPTION_PATTERN = "-[a-z,A-Z]"; //pattern for specified option
     private static final MainPresenter MAIN_PRESENTER = new MainPresenter();
 
     private static String[] regionsData;
