@@ -140,8 +140,13 @@ public class MainEntry {
                     }
 
                     try {
-                        DELAY_LONG = Integer.parseInt(optionsData[0]) * 1000;
-                        DELAY_SHORT = Integer.parseInt(optionsData[1]) * 1000;
+                        if(optionsData[0].contains("*") || optionsData[0].contains("+")
+                                || optionsData[0].contains("-") || optionsData[0].contains("/")) {
+                            throw new IllegalArgumentException(StringConfig.EXCEPTION_OPTION_NUMBER_FORMAT + option);
+                        }
+
+                        DELAY_LONG = Integer.parseInt(optionsData[0].replaceAll("[^\\d.]", "")) * 1000;
+                        DELAY_SHORT = Integer.parseInt(optionsData[1].replaceAll("[^\\d.]", "")) * 1000;
                     } catch (NumberFormatException e) {
                         throw new IllegalArgumentException(StringConfig.EXCEPTION_OPTION_NUMBER_FORMAT + option);
                     }
@@ -156,7 +161,7 @@ public class MainEntry {
                     }
 
                     try {
-                        INTERVAL_SHORT_DELAY_MINUTES = Integer.parseInt(optionsData[0]);
+                        INTERVAL_SHORT_DELAY_MINUTES = Integer.parseInt(optionsData[0].replaceAll("[^\\d.]", ""));
                     } catch (NumberFormatException e) {
                         throw new IllegalArgumentException(StringConfig.EXCEPTION_OPTION_NUMBER_FORMAT + option);
                     }
@@ -174,13 +179,25 @@ public class MainEntry {
                     }
 
                     daemonMode = true;
+                    break;
+                case 'c':
+                    if (optionsData.length == 0) {
+                        throw new IllegalArgumentException(StringConfig.EXCEPTION_MISSING_ARGUMENTS_OPTION + option);
+                    }
+
+                    if (optionsData.length > 1) {
+                        throw new IllegalArgumentException(String.format(StringConfig.EXCEPTION_MANY_ARGS_OPTION, option, 1));
+                    }
+
+                    ConfigHelper.setConfigPath(optionsData[0]);
+                    break;
                 default:
                     throw new IllegalArgumentException(StringConfig.EXCEPTION_UNRECOGNIZED + option);
             }
         }
 
         if (language == null) {
-            language = "EN";
+            language = "ITA";
         }
 
         if (regionsData == null) {

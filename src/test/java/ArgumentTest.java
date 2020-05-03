@@ -215,6 +215,18 @@ public class ArgumentTest {
     }
 
     @Test
+    public void setMissingConfigArguments() {
+        try {
+            String[] args = new String[]{"ITALY", "-c"};
+            MainEntry.main(args);
+            assert false;
+        } catch (Exception e) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(e.getMessage());
+            assert e.getMessage().equalsIgnoreCase(EXCEPTION_MISSING_ARGUMENTS_OPTION + 'c');
+        }
+    }
+
+    @Test
     public void setManyDaemonArguments() {
         try {
             String[] args = new String[]{"ITALY", "-s", "test"};
@@ -223,6 +235,18 @@ public class ArgumentTest {
         } catch (Exception e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(e.getMessage());
             assert e.getMessage().equalsIgnoreCase(String.format(EXCEPTION_MANY_ARGS_OPTION, 's', 0));
+        }
+    }
+
+    @Test
+    public void setManyConfigArguments() {
+        try {
+            String[] args = new String[]{"ITALY", "-c", "test", "test"};
+            MainEntry.main(args);
+            assert false;
+        } catch (Exception e) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(e.getMessage());
+            assert e.getMessage().equalsIgnoreCase(String.format(EXCEPTION_MANY_ARGS_OPTION, 'c', 1));
         }
     }
 

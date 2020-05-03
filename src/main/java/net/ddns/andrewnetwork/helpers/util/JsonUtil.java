@@ -9,6 +9,7 @@ public final class JsonUtil {
 
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(Date.class, new DateDeserializer())
+            .registerTypeAdapter(Date.class, new DateSerializer())
             .create();
 
 

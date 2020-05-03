@@ -4,7 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class DateUtil {
-
+    public static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     public static Date twoHourAfter(Date date) {
         return minutesAfter(date, 120);
     }

@@ -21,7 +21,7 @@ public class CovidRegionData extends CovidItaData {
     @Override
     public String toString() {
         return "\n\n<b>" +regionLabel.toUpperCase() + "</b>:\n" +
-                StringConfig.getStatusEmojiCode(variationPositive) +" <b>" + StringConfig.formatNumber(variationPositive) + "</b> <b> Variazione di casi positivi</b>\n\n" +
+                "<b>" + StringConfig.formatNumber(variationPositive) + "</b> <b> Variazione di casi positivi</b>\n\n" +
                 "<b>" + StringConfig.formatNumber(totalCases) +"</b> <b>Casi totali da inizio pandemia</b>\n" +
                 "<b>" + StringConfig.formatNumber(totalPositive) + "</b> <b>Totale positivi</b>\n" +
                 "<b>" + StringConfig.formatNumber(totalRecovered) + "</b> <b>Totale guariti</b>\n" +

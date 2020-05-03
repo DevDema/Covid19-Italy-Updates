@@ -8,9 +8,9 @@ import java.util.Date;
 
 public class ConfigHelper {
 
-    private static final String CONFIG_PATH = "covid19Updates.config";
+    private static String CONFIG_PATH = "covid19Updates.config";
 
-    public static String getConfigDataString() {
+    public static String getConfigDataString()  {
         return FileUtils.getFile(CONFIG_PATH);
     }
     public static ConfigData getConfigData() {
@@ -21,9 +21,13 @@ public class ConfigHelper {
 
     public static void putRowData(Date date) {
         ConfigData configData = getConfigData();
-
         configData.setDate(date);
 
+
         FileUtils.writeFile(CONFIG_PATH, JsonUtil.getGson().toJson(configData));
+    }
+
+    public static void setConfigPath(String configPath) {
+        CONFIG_PATH = configPath;
     }
 }
