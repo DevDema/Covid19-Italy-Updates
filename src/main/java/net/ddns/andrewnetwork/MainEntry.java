@@ -2,9 +2,9 @@ package net.ddns.andrewnetwork;
 
 import net.ddns.andrewnetwork.helpers.ConfigHelper;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
-import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 import net.ddns.andrewnetwork.helpers.util.ListUtils;
 import net.ddns.andrewnetwork.helpers.util.StringConfig;
+import net.ddns.andrewnetwork.model.ConfigData;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 
@@ -29,7 +29,10 @@ public class MainEntry {
         String requiredData = getRequiredData(args);
 
         getOptionalData(args);
-        date = ConfigHelper.getConfigData().getDate();
+        ConfigData configData = ConfigHelper.getConfigData();
+
+        date = configData.getDate();
+        TelegramHelper.setChannelId(configData.getChannelID());
         if(daemonMode) {
             while (true) {
                 getData();
