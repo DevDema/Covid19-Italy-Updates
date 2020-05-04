@@ -133,7 +133,7 @@ public class ArgumentTest {
     @Test
     public void setUncorrectDelayArguments1() {
         try {
-            String[] args = new String[]{"ITALY", "-d", "60*30", "30"};
+            String[] args = new String[]{"ITALY", "-d", "60*30"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -169,50 +169,15 @@ public class ArgumentTest {
     @Test
     public void setManyDelayArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-d", "60", "30", "30"};
+            String[] args = new String[]{"ITALY", "-d", "60", "30"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(e.getMessage());
-            assert e.getMessage().equalsIgnoreCase(String.format(EXCEPTION_MANY_ARGS_OPTION, 'd', 2));
+            assert e.getMessage().equalsIgnoreCase(String.format(EXCEPTION_MANY_ARGS_OPTION, 'd', 1));
         }
     }
 
-    @Test
-    public void setUncorrectTimeArguments() {
-        try {
-            String[] args = new String[]{"ITALY", "-t", "test"};
-            MainEntry.main(args);
-            assert false;
-        } catch (Exception e) {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(e.getMessage());
-            assert e.getMessage().equalsIgnoreCase(EXCEPTION_OPTION_NUMBER_FORMAT + 't');
-        }
-    }
-
-    @Test
-    public void setManyTimeArguments() {
-        try {
-            String[] args = new String[]{"ITALY", "-t", "120", "120"};
-            MainEntry.main(args);
-            assert false;
-        } catch (Exception e) {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(e.getMessage());
-            assert e.getMessage().equalsIgnoreCase(String.format(EXCEPTION_MANY_ARGS_OPTION, 't', 1));
-        }
-    }
-
-    @Test
-    public void setMissingTimeArguments() {
-        try {
-            String[] args = new String[]{"ITALY", "-t"};
-            MainEntry.main(args);
-            assert false;
-        } catch (Exception e) {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(e.getMessage());
-            assert e.getMessage().equalsIgnoreCase(EXCEPTION_MISSING_ARGUMENTS_OPTION + 't');
-        }
-    }
 
     @Test
     public void setMissingConfigArguments() {

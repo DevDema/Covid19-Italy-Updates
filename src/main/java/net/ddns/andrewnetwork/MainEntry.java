@@ -14,9 +14,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class MainEntry {
-    private static long DELAY_LONG = 2*60*60*1000L; // 2 HOURS
-    private static long DELAY_SHORT = 15*60*1000L; // 15 MINUTES
-    private static int INTERVAL_SHORT_DELAY_MINUTES = 120; // 2 HOURS
+    private static long DELAY = 5*60*1000L; // 5 MINUTES
     private static boolean DEBUG_MODE = false;
     private static final String OPTION_PATTERN = "-[a-z,A-Z]"; //pattern for specified option
     private static final MainPresenter MAIN_PRESENTER = new MainPresenter();
@@ -34,17 +32,13 @@ public class MainEntry {
         date = ConfigHelper.getConfigData().getDate();
         if(daemonMode) {
             while (true) {
-                long nowTime = System.currentTimeMillis();
-                long referenceTime = date.getTime();
-                long twoHourAfterTime = DateUtil.minutesAfter(date, INTERVAL_SHORT_DELAY_MINUTES).getTime();
-
                 getData();
 
                 try {
                     if(DEBUG_MODE) {
                         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(StringConfig.DAEMON_MODE_WAITING);
                     }
-                    Thread.sleep(nowTime > referenceTime && nowTime < twoHourAfterTime ? DELAY_SHORT : DELAY_LONG);
+                    Thread.sleep(DELAY);
                 } catch (InterruptedException e) {
                     Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning(e.getMessage());
                     break;
@@ -131,12 +125,8 @@ public class MainEntry {
                         throw new IllegalArgumentException(StringConfig.EXCEPTION_MISSING_ARGUMENTS_OPTION + option);
                     }
 
-                    if (optionsData.length < 2) {
-                        throw new IllegalArgumentException(StringConfig.EXCEPTION_DELAY_MISSING);
-                    }
-
-                    if (optionsData.length > 2) {
-                        throw new IllegalArgumentException(String.format(StringConfig.EXCEPTION_MANY_ARGS_OPTION, option, 2));
+                    if (optionsData.length > 1) {
+                        throw new IllegalArgumentException(String.format(StringConfig.EXCEPTION_MANY_ARGS_OPTION, option, 1));
                     }
 
                     try {
@@ -145,23 +135,7 @@ public class MainEntry {
                             throw new IllegalArgumentException(StringConfig.EXCEPTION_OPTION_NUMBER_FORMAT + option);
                         }
 
-                        DELAY_LONG = Integer.parseInt(optionsData[0].replaceAll("[^\\d.]", "")) * 1000;
-                        DELAY_SHORT = Integer.parseInt(optionsData[1].replaceAll("[^\\d.]", "")) * 1000;
-                    } catch (NumberFormatException e) {
-                        throw new IllegalArgumentException(StringConfig.EXCEPTION_OPTION_NUMBER_FORMAT + option);
-                    }
-                    break;
-                case 't':
-                    if (optionsData.length == 0) {
-                        throw new IllegalArgumentException(StringConfig.EXCEPTION_MISSING_ARGUMENTS_OPTION + option);
-                    }
-
-                    if (optionsData.length > 1) {
-                        throw new IllegalArgumentException(String.format(StringConfig.EXCEPTION_MANY_ARGS_OPTION, option, 1));
-                    }
-
-                    try {
-                        INTERVAL_SHORT_DELAY_MINUTES = Integer.parseInt(optionsData[0].replaceAll("[^\\d.]", ""));
+                        DELAY = Integer.parseInt(optionsData[0].replaceAll("[^\\d.]", "")) * 1000;
                     } catch (NumberFormatException e) {
                         throw new IllegalArgumentException(StringConfig.EXCEPTION_OPTION_NUMBER_FORMAT + option);
                     }
