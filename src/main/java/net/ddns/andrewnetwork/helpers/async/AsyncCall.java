@@ -1,6 +1,7 @@
 package net.ddns.andrewnetwork.helpers.async;
 
 import net.ddns.andrewnetwork.helpers.ApiHelper;
+import net.ddns.andrewnetwork.helpers.ConfigHelper;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
@@ -25,7 +26,9 @@ public final class AsyncCall {
 
             if(data != null) {
                 List<CovidRegionData> newData = CovidDataUtils.getRegionByLabel(data, regions);
+                List<CovidRegionData> savedData = ConfigHelper.getConfigData().getRegionsDataSaved();
 
+                CovidDataUtils.computeVariationsList(newData, savedData);
                 emitter.onSuccess(newData);
             } else {
                 emitter.onError(new Exception("Covid data region is null."));

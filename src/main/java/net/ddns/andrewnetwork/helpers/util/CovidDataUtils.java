@@ -1,5 +1,6 @@
 package net.ddns.andrewnetwork.helpers.util;
 
+import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 
 import java.util.List;
@@ -28,5 +29,24 @@ public final class CovidDataUtils {
 
             return bool;
         }).collect(Collectors.toList());
+    }
+
+    public static void computeVariationsList(List<CovidRegionData> newData, List<CovidRegionData> savedData) {
+        for(CovidRegionData data : newData) {
+            CovidRegionData saved = CovidDataUtils.getRegionByLabel(savedData, data.getRegionLabel());
+
+            computeVariations(data, saved);
+        }
+    }
+
+    public static void computeVariations(CovidItaData data, CovidItaData saved) {
+        // TODO: 05/05/2020 COMPUTE QUARANTINED AND TEST
+        data.setVariationDeaths(data.getDeaths() - saved.getDeaths());
+        data.setVariationHospitalized(data.getHospitalized() - saved.getHospitalized());
+        data.setVariationIntensiveCare(data.getIntensiveCare() - saved.getIntensiveCare());
+        data.setVariationRecovered(data.getTotalRecovered() - saved.getTotalRecovered());
+        data.setVariationTestedPeople(data.getTestedPeople() - saved.getTestedPeople());
+        data.setVariationTests(data.getTests() - saved.getTests());
+        data.setVariationTotalCases(data.getTotalCases() - saved.getTotalCases());
     }
 }
