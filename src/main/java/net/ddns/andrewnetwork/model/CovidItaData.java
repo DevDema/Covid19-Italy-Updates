@@ -97,7 +97,7 @@ public class CovidItaData implements Serializable {
     @Override
     public String toString() {
         return "\n\n<b>[ITALIA]</b>:\n" +
-                "<b>" + StringConfig.formatNumber(variationPositive) + "</b> <b> Variazione di casi positivi</b>\n\n" +
+                "<b>" + StringConfig.formatNumber(variationPositive) + "</b><b> Variazione di casi positivi</b>\n\n" +
                 "<b>" + StringConfig.formatNumber(totalCases) +"</b> <b>Casi totali da inizio pandemia</b>\n" +
                 "<b>" + StringConfig.formatNumber(totalPositive) + "</b> <b>Totale positivi</b>\n" +
                 "<b>" + StringConfig.formatNumber(totalRecovered) + "</b> <b>Totale guariti</b>\n" +

@@ -71,7 +71,12 @@ public class MainEntry {
             }
 
             date = covidItaData.getDate();
-            ConfigHelper.putRowData(covidItaData.getDate());
+
+            ConfigHelper.getInstance()
+                    .getData()
+                    .putDate(covidItaData.getDate())
+                    .putTodayData(covidItaData, covidRegionData)
+                    .commit();
         } else {
             if(DEBUG_MODE) {
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Data is not updated.");

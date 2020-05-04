@@ -157,7 +157,7 @@ public class ArgumentTest {
     @Test
     public void setUncorrectDelayArguments2() {
         try {
-            String[] args = new String[]{"ITALY", "-d", "test", "30"};
+            String[] args = new String[]{"ITALY", "-d", "test"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
