@@ -1,18 +1,13 @@
 package net.ddns.andrewnetwork.helpers;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import net.ddns.andrewnetwork.helpers.util.DateDeserializer;
 import net.ddns.andrewnetwork.helpers.util.JsonUtil;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
-import rx.Observable;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Date;
 import java.util.List;
 
 import java.util.logging.Logger;

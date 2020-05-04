@@ -1,4 +1,4 @@
-package net.ddns.andrewnetwork.helpers.util;
+package net.ddns.andrewnetwork.helpers.util.time;
 
 import java.util.Calendar;
 import java.util.Date;

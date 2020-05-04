@@ -1,4 +1,4 @@
-package net.ddns.andrewnetwork.helpers.util;
+package net.ddns.andrewnetwork.helpers.util.time;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -9,9 +9,8 @@ import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
-import static net.ddns.andrewnetwork.helpers.util.DateUtil.DATE_TIME_FORMAT;
+import static net.ddns.andrewnetwork.helpers.util.time.DateUtil.DATE_TIME_FORMAT;
 
 public class DateDeserializer implements JsonDeserializer<Date> {
 

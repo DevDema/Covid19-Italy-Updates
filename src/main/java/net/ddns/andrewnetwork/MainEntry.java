@@ -2,7 +2,7 @@ package net.ddns.andrewnetwork;
 
 import net.ddns.andrewnetwork.helpers.ConfigHelper;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
-import net.ddns.andrewnetwork.helpers.util.DateUtil;
+import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 import net.ddns.andrewnetwork.helpers.util.ListUtils;
 import net.ddns.andrewnetwork.helpers.util.StringConfig;
 import net.ddns.andrewnetwork.model.CovidItaData;
