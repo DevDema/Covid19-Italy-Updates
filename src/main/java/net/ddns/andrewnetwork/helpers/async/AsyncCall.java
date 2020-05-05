@@ -14,9 +14,16 @@ public final class AsyncCall {
 
     public static Single<CovidItaData> getItalyData() {
         return Single.create(emitter -> {
-            CovidItaData data = apiHelper.getItalyData();
+            CovidItaData newData = apiHelper.getItalyData();
 
-            emitter.onSuccess(data);
+            if(newData != null) {
+                CovidItaData savedData = ConfigHelper.getConfigData().getItalyDataSaved();
+
+                CovidDataUtils.computeVariations(newData, savedData);
+                emitter.onSuccess(newData);
+            } else {
+                emitter.onError(new Exception("Covid Ita data is null."));
+            }
         });
     }
 

@@ -49,6 +49,10 @@ public final class StringConfig {
         return formatter.format(number);
     }
 
+    public static String formatVariation(int number) {
+        return (number > 0 ? "+" : "") + formatNumber(number);
+    }
+
     public static String getStatusEmojiCode(int number) {
         return number < 0 ? "\\xE2\\x9C\\x85" : "\\xE2\\x9A\\xA0";
     }

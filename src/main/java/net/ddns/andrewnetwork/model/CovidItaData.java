@@ -19,7 +19,7 @@ public class CovidItaData implements Serializable {
     @SerializedName("totale_ospedalizzati")
     protected int hospitalized;
     @SerializedName("isolamento_domiciliare")
-    protected  int houseIsolation;
+    protected  int quarantined;
     @SerializedName("totale_positivi")
     protected int totalPositive;
     @SerializedName("nuovi_positivi")
@@ -37,6 +37,7 @@ public class CovidItaData implements Serializable {
 
     @SerializedName("variazione_totale_positivi")
     protected int variationPositive;
+    protected int variationQuarantined;
     protected transient int variationDeaths;
     protected transient int variationRecovered;
     protected transient int variationTests;
@@ -65,8 +66,8 @@ public class CovidItaData implements Serializable {
         return hospitalized;
     }
 
-    public int getHouseIsolation() {
-        return houseIsolation;
+    public int getQuarantined() {
+        return quarantined;
     }
 
     public int getTotalPositive() {
@@ -75,6 +76,14 @@ public class CovidItaData implements Serializable {
 
     public int getVariationPositive() {
         return variationPositive;
+    }
+
+    public int getVariationQuarantined() {
+        return variationQuarantined;
+    }
+
+    public void setVariationQuarantined(int variationQuarantined) {
+        this.variationQuarantined = variationQuarantined;
     }
 
     public int getNewPositives() {
@@ -149,8 +158,8 @@ public class CovidItaData implements Serializable {
         this.hospitalized = hospitalized;
     }
 
-    public void setHouseIsolation(int houseIsolation) {
-        this.houseIsolation = houseIsolation;
+    public void setQuarantined(int quarantined) {
+        this.quarantined = quarantined;
     }
 
     public void setTotalPositive(int totalPositive) {
@@ -220,23 +229,24 @@ public class CovidItaData implements Serializable {
     @Override
     public String toString() {
         return "\n\n<b>[" + getTitleString() + "]</b>:\n" +
-                "<b>" + StringConfig.formatNumber(variationPositive) + "</b> <b>Variazione casi positivi</b>\n" +
-                "<b>"+ StringConfig.formatNumber(variationDeaths) + "</b> <b>Variazione Morti</b>\n" +
-                "<b>"+ StringConfig.formatNumber(variationRecovered) + "</b> <b>Variazione Guariti</b>\n" +
-                "<b>"+ StringConfig.formatNumber(variationHospitalized) + "</b> <b>Variazione Ospedalizzati</b>\n" +
-                "<b>"+ StringConfig.formatNumber(variationIntensiveCare) + "</b> <b>Variazione Terapia Intensiva</b>\n" +
-                "<b>"+ StringConfig.formatNumber(variationTests) + "</b> <b>Variazione Tamponi</b>\n" +
-                "<b>"+ StringConfig.formatNumber(variationTestedPeople) + "</b> <b>Variazione Persone testate</b>\n\n" +
-                "<b>" + StringConfig.formatNumber(totalCases) +"</b> <b>Casi totali da inizio pandemia</b>\n" +
-                "<b>" + StringConfig.formatNumber(totalPositive) + "</b> <b>Totale positivi</b>\n" +
-                "<b>" + StringConfig.formatNumber(totalRecovered) + "</b> <b>Totale guariti</b>\n" +
-                "<b>" + StringConfig.formatNumber(deaths) + "</b> <b>Totale morti</b>\n" +
-                "<b>" + StringConfig.formatNumber(newPositives) + "</b> <b>Nuovi casi</b>\n" +
-                "<b>" + StringConfig.formatNumber(houseIsolation) + "</b> in <b>Quarantena</b>\n" +
-                "<b>" + StringConfig.formatNumber(hospitalized) + "</b> in <b>Ospedale</b>\n" +
-                "<b>" + StringConfig.formatNumber(hospitalizedSymptoms) + "</b> in <b>Ospedale con sintomi</b>\n" +
-                "<b>" + StringConfig.formatNumber(intensiveCare) + "</b> in <b>Terapia Intensiva</b>\n" +
-                "<b>" + StringConfig.formatNumber(tests) + "</b> <b>Tamponi eseguiti</b>\n" +
-                "<b>" + StringConfig.formatNumber(testedPeople) + "</b> <b>Persone testate</b>\n";
+                "<b>" + StringConfig.formatVariation(newPositives) + "</b> Variazione <b>Casi Totali</b>\n" +
+                "<b>" + StringConfig.formatVariation(variationPositive) + "</b> Variazione <b>Casi Positivi</b>\n" +
+                "<b>"+ StringConfig.formatVariation(variationDeaths) + "</b> Variazione <b>Morti</b>\n" +
+                "<b>"+ StringConfig.formatVariation(variationRecovered) + "</b> Variazione <b>Guariti</b>\n" +
+                "<b>"+ StringConfig.formatVariation(variationHospitalized) + "</b> Variazione <b>Ospedalizzati</b>\n" +
+                "<b>"+ StringConfig.formatVariation(variationIntensiveCare) + "</b> Variazione <b>Terapia Intensiva</b>\n" +
+                "<b>"+ StringConfig.formatVariation(variationQuarantined) + "</b> Variazione casi in <b>Quarantena</b>\n" +
+                "<b>"+ StringConfig.formatVariation(variationTests) + "</b> Variazione <b>Tamponi</b>\n" +
+                "<b>"+ StringConfig.formatVariation(variationTestedPeople) + "</b> Variazione <b>Persone testate</b>\n\n" +
+                "<b>" + StringConfig.formatNumber(totalCases) +"</b> Casi totali da inizio pandemia\n" +
+                "<b>" + StringConfig.formatNumber(totalPositive) + "</b> Totale positivi\n" +
+                "<b>" + StringConfig.formatNumber(totalRecovered) + "</b> Totale guariti\n" +
+                "<b>" + StringConfig.formatNumber(deaths) + "</b> Totale morti\n" +
+                "<b>" + StringConfig.formatNumber(quarantined) + "</b> in Quarantena\n" +
+                "<b>" + StringConfig.formatNumber(hospitalized) + "</b> in Ospedale\n" +
+                "<b>" + StringConfig.formatNumber(hospitalizedSymptoms) + "</b> in Ospedale con sintomi\n" +
+                "<b>" + StringConfig.formatNumber(intensiveCare) + "</b> in Terapia Intensiva\n" +
+                "<b>" + StringConfig.formatNumber(tests) + "</b> Tamponi eseguiti\n" +
+                "<b>" + StringConfig.formatNumber(testedPeople) + "</b> Persone testate\n";
     }
 }

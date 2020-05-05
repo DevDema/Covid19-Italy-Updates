@@ -42,6 +42,7 @@ public class DataGetTest {
         today.setDeaths(29079);
         today.setTotalRecovered(82879);
         today.setTotalPositive(99980);
+        today.setQuarantined(81678);
         today.setIntensiveCare(1479);
         today.setHospitalized(18302);
         today.setTestedPeople(1479910);
@@ -52,6 +53,7 @@ public class DataGetTest {
         yesterday.setDeaths(28884);
         yesterday.setTotalRecovered(81654);
         yesterday.setTotalPositive(100179);
+        yesterday.setQuarantined(81436);
         yesterday.setIntensiveCare(1501);
         yesterday.setHospitalized(18743);
         yesterday.setTestedPeople(1456911);
@@ -67,5 +69,6 @@ public class DataGetTest {
         assert today.getVariationHospitalized() == -441;
         assert today.getVariationTestedPeople() == 22999;
         assert today.getVariationTests() == 37631;
+        assert today.getVariationQuarantined() == 242;
     }
 }

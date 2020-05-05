@@ -40,7 +40,6 @@ public final class CovidDataUtils {
     }
 
     public static void computeVariations(CovidItaData data, CovidItaData saved) {
-        // TODO: 05/05/2020 COMPUTE QUARANTINED AND TEST
         data.setVariationDeaths(data.getDeaths() - saved.getDeaths());
         data.setVariationHospitalized(data.getHospitalized() - saved.getHospitalized());
         data.setVariationIntensiveCare(data.getIntensiveCare() - saved.getIntensiveCare());
@@ -48,5 +47,6 @@ public final class CovidDataUtils {
         data.setVariationTestedPeople(data.getTestedPeople() - saved.getTestedPeople());
         data.setVariationTests(data.getTests() - saved.getTests());
         data.setVariationTotalCases(data.getTotalCases() - saved.getTotalCases());
+        data.setVariationQuarantined(data.getQuarantined() - saved.getQuarantined());
     }
 }
