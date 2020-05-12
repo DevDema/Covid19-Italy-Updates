@@ -5,6 +5,7 @@ import net.ddns.andrewnetwork.helpers.util.StringConfig;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 public class CovidItaData implements Serializable {
 
@@ -224,6 +225,37 @@ public class CovidItaData implements Serializable {
 
     protected String getTitleString() {
         return "ITALIA";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CovidItaData that = (CovidItaData) o;
+
+        return intensiveCare == that.intensiveCare &&
+                hospitalizedSymptoms == that.hospitalizedSymptoms &&
+                hospitalized == that.hospitalized &&
+                quarantined == that.quarantined &&
+                totalPositive == that.totalPositive &&
+                newPositives == that.newPositives &&
+                totalRecovered == that.totalRecovered &&
+                deaths == that.deaths &&
+                totalCases == that.totalCases &&
+                tests == that.tests &&
+                testedPeople == that.testedPeople &&
+                date.getTime() == that.getDate().getTime() &&
+                Objects.equals(countryCode, that.countryCode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(date, countryCode, intensiveCare, hospitalizedSymptoms, hospitalized, quarantined, totalPositive, newPositives, totalRecovered, deaths, totalCases, tests, testedPeople);
     }
 
     @Override

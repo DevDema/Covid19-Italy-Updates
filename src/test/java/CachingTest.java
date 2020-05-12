@@ -11,7 +11,7 @@ public class CachingTest {
     ApiHelper apiHelper = new ApiHelper();
 
     @Test
-    public void cacheData() {
+    public void cacheCovidData() {
         CovidItaData itaData = apiHelper.getItalyData();
         List<CovidRegionData> regionsData = apiHelper.getRegionsData();
 
@@ -26,5 +26,17 @@ public class CachingTest {
         assert ConfigHelper.getConfigData().getItalyDataSaved() != null;
         assert ConfigHelper.getConfigData().getRegionsDataSaved() != null && !ConfigHelper.getConfigData().getRegionsDataSaved().isEmpty();
 
+    }
+
+    @Test
+    public void cacheMessageId() {
+        long messageId = 4024372L;
+
+        ConfigHelper.getInstance()
+                .getData()
+                .putMessageId(messageId)
+                .commit();
+
+        assert ConfigHelper.getConfigData().getMessageID() == messageId;
     }
 }

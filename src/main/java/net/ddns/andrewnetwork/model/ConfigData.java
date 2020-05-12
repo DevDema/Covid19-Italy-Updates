@@ -2,45 +2,35 @@ package net.ddns.andrewnetwork.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class ConfigData {
 
-    @SerializedName("last_seen_date")
-    private Date date;
+
     @SerializedName("channel_id")
     private long channelID;
-    @SerializedName("italy_data_saved")
-    private CovidItaData italyDataSaved;
-    @SerializedName("regions_data_saved")
-    private List<CovidRegionData> regionsDataSaved;
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
+    @SerializedName("last_message_id")
+    private long messageID;
+    @SerializedName("last_days")
+    private final List<ConfigSavedData> lastDays = new ArrayList<>();
 
     public long getChannelID() {
         return channelID;
     }
 
-    public CovidItaData getItalyDataSaved() {
-        return italyDataSaved;
+    public void setChannelID(long channelID) {
+        this.channelID = channelID;
     }
 
-    public void setItalyDataSaved(CovidItaData italyDataSaved) {
-        this.italyDataSaved = italyDataSaved;
+    public long getMessageID() {
+        return messageID;
     }
 
-    public List<CovidRegionData> getRegionsDataSaved() {
-        return regionsDataSaved;
+    public void setMessageID(long messageID) {
+        this.messageID = messageID;
     }
 
-    public void setRegionsDataSaved(List<CovidRegionData> regionsDataSaved) {
-        this.regionsDataSaved = regionsDataSaved;
+    public List<ConfigSavedData> getLastDays() {
+        return lastDays;
     }
 }

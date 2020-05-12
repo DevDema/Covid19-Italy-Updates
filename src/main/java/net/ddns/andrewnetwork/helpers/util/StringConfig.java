@@ -6,8 +6,10 @@ import net.ddns.andrewnetwork.model.CovidRegionData;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 public final class StringConfig {
 
@@ -22,7 +24,7 @@ public final class StringConfig {
     public static final String EXCEPTION_UNRECOGNIZED = "Unrecognized option -";
     public static final String DAEMON_MODE_WAITING = "Daemon Mode, waiting...";
 
-    public static String buildFinalMessage(Date date, CovidItaData italyData, List<CovidRegionData> regionDataList) {
+    public static String buildFinalMessage(Date date, CovidItaData italyData, Collection<CovidRegionData> regionDataList) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
         String dateString = simpleDateFormat.format(date);
 

@@ -1,15 +1,62 @@
+import net.ddns.andrewnetwork.MainEntry;
 import net.ddns.andrewnetwork.helpers.ApiHelper;
+import net.ddns.andrewnetwork.helpers.ConfigHelper;
+import net.ddns.andrewnetwork.helpers.TelegramHelper;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
 
 public class DataGetTest {
 
-    ApiHelper apiHelper = new ApiHelper();
+    private final ApiHelper apiHelper = new ApiHelper();
+    private static final CovidItaData today = new CovidItaData();
+    private static final CovidItaData yesterday = new CovidItaData();
+    private static final long channelId = -1001446903259L;
+    @BeforeAll
+    public static void setup() {
+        TelegramHelper.setChannelId(channelId);
+
+        Calendar todayCalendar = Calendar.getInstance();
+        Calendar yesterdayCalendar = Calendar.getInstance();
+
+        todayCalendar.set(Calendar.DAY_OF_MONTH, 4);
+        todayCalendar.set(Calendar.MONTH, Calendar.MAY);
+        todayCalendar.set(Calendar.YEAR, 2020);
+
+        yesterdayCalendar.set(Calendar.DAY_OF_MONTH, 3);
+        yesterdayCalendar.set(Calendar.MONTH, Calendar.MAY);
+        yesterdayCalendar.set(Calendar.YEAR, 2020);
+
+        today.setDate(todayCalendar.getTime());
+        today.setTotalCases(211938); //4 MAY 2020
+        today.setDeaths(29079);
+        today.setTotalRecovered(82879);
+        today.setTotalPositive(99980);
+        today.setQuarantined(81678);
+        today.setIntensiveCare(1479);
+        today.setHospitalized(18302);
+        today.setTestedPeople(1479910);
+        today.setTests(2191403);
+        today.setVariationPositive(-199);
+
+        yesterday.setDate(yesterdayCalendar.getTime());
+        yesterday.setTotalCases(210717); //3 MAY 2020
+        yesterday.setDeaths(28884);
+        yesterday.setTotalRecovered(81654);
+        yesterday.setTotalPositive(100179);
+        yesterday.setQuarantined(81436);
+        yesterday.setIntensiveCare(1501);
+        yesterday.setHospitalized(18743);
+        yesterday.setTestedPeople(1456911);
+        yesterday.setTests(2153772);
+    }
 
     @Test
     public void getItalyData() {
@@ -35,30 +82,6 @@ public class DataGetTest {
 
     @Test
     public void computeVariationsOnSamples() {
-        CovidItaData today = new CovidItaData();
-        CovidItaData yesterday = new CovidItaData();
-
-        today.setTotalCases(211938); //4 MAY 2020
-        today.setDeaths(29079);
-        today.setTotalRecovered(82879);
-        today.setTotalPositive(99980);
-        today.setQuarantined(81678);
-        today.setIntensiveCare(1479);
-        today.setHospitalized(18302);
-        today.setTestedPeople(1479910);
-        today.setTests(2191403);
-        today.setVariationPositive(-199);
-
-        yesterday.setTotalCases(210717); //3 MAY 2020
-        yesterday.setDeaths(28884);
-        yesterday.setTotalRecovered(81654);
-        yesterday.setTotalPositive(100179);
-        yesterday.setQuarantined(81436);
-        yesterday.setIntensiveCare(1501);
-        yesterday.setHospitalized(18743);
-        yesterday.setTestedPeople(1456911);
-        yesterday.setTests(2153772);
-
         CovidDataUtils.computeVariations(today, yesterday);
 
         assert today.getVariationTotalCases() == 1221;
@@ -70,5 +93,35 @@ public class DataGetTest {
         assert today.getVariationTestedPeople() == 22999;
         assert today.getVariationTests() == 37631;
         assert today.getVariationQuarantined() == 242;
+    }
+
+    @Test
+    public void editedMessageTest() {
+        Calendar todayCalendar = Calendar.getInstance();
+
+        todayCalendar.set(Calendar.DAY_OF_MONTH, 3);
+        todayCalendar.set(Calendar.MONTH, Calendar.MAY);
+        todayCalendar.set(Calendar.YEAR, 2020);
+
+
+        ConfigHelper.getInstance()
+                .getData()
+                .putDate(yesterday.getDate())
+                .putTodayData(yesterday, new HashSet<>())
+                .putChannelId(channelId)
+                .commit();
+
+        MainEntry.onDataLoaded(today, new HashSet<>());
+
+        long messageId = ConfigHelper.getConfigData().getMessageID();
+
+        assert messageId != 0;
+
+        today.setQuarantined(80650);
+        today.setDate(todayCalendar.getTime());
+
+        MainEntry.onDataLoaded(today, new HashSet<>());
+
+        assert messageId == ConfigHelper.getConfigData().getMessageID();
     }
 }

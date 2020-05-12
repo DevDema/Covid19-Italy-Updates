@@ -1,5 +1,9 @@
 package net.ddns.andrewnetwork;
 
+import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.request.EditMessageText;
+import com.pengrad.telegrambot.response.BaseResponse;
+import com.pengrad.telegrambot.response.SendResponse;
 import net.ddns.andrewnetwork.helpers.ConfigHelper;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
 import net.ddns.andrewnetwork.helpers.util.ListUtils;
@@ -8,9 +12,7 @@ import net.ddns.andrewnetwork.model.ConfigData;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class MainEntry {
@@ -21,7 +23,6 @@ public class MainEntry {
 
     private static String[] regionsData;
     private static String language;
-    private static Date date;
     private static boolean daemonMode = false;
 
 
@@ -30,9 +31,8 @@ public class MainEntry {
 
         getOptionalData(args);
         ConfigData configData = ConfigHelper.getConfigData();
-
-        date = configData.getDate();
         TelegramHelper.setChannelId(configData.getChannelID());
+
         if(daemonMode) {
             while (true) {
                 getData();
@@ -56,32 +56,65 @@ public class MainEntry {
 
     private static void getData() {
         if(DEBUG_MODE) {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("getting Data..." + date);
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("getting Data..." + ConfigHelper.getConfigData().getDate());
         }
 
         MAIN_PRESENTER.getData(regionsData);
     }
 
-    public static void onDataLoaded(CovidItaData covidItaData, List<CovidRegionData> covidRegionData) {
-        if(covidItaData.getDate().after(date)) {
-            try {
-                TelegramHelper.sendMessage(StringConfig.buildFinalMessage(covidItaData.getDate(), covidItaData, covidRegionData));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    public static void onDataLoaded(CovidItaData covidItaData, Set<CovidRegionData> covidRegionData) {
+        CovidItaData covidItaSavedData = ConfigHelper.getConfigData().getItalyDataSaved();
+        Set<CovidRegionData> covidRegionDataSavedList = new HashSet<>(ConfigHelper.getConfigData().getRegionsDataSaved());
 
-            date = covidItaData.getDate();
-
-            ConfigHelper.getInstance()
-                    .getData()
-                    .putDate(covidItaData.getDate())
-                    .putTodayData(covidItaData, covidRegionData)
-                    .commit();
+        if(covidItaData.getDate().after(ConfigHelper.getConfigData().getDate())) {
+            sendNewMessage(covidItaData, covidRegionData);
+        } else if(!covidItaData.equals(covidItaSavedData) || !covidRegionData.equals(covidRegionDataSavedList)) {
+            editLastMessage(covidItaData, covidRegionData);
         } else {
             if(DEBUG_MODE) {
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Data is not updated.");
             }
         }
+    }
+
+    private static void editLastMessage(CovidItaData covidItaData, Collection<CovidRegionData> covidRegionData) {
+        long lastMessageId = ConfigHelper.getConfigData().getMessageID();
+
+        BaseResponse baseResponse = TelegramHelper.editMessage((int) lastMessageId, StringConfig.buildFinalMessage(covidItaData.getDate(), covidItaData, covidRegionData));
+
+        if(!baseResponse.isOk()) {
+            return;
+        }
+
+        ConfigHelper.getInstance()
+                .getData()
+                .putDate(covidItaData.getDate())
+                .putMessageId(lastMessageId)
+                .putTodayData(covidItaData, covidRegionData)
+                .commit();
+    }
+
+    private static void sendNewMessage(CovidItaData covidItaData, Collection<CovidRegionData> covidRegionData) {
+        SendResponse sendResponse = TelegramHelper.sendMessage(
+                StringConfig.buildFinalMessage(covidItaData.getDate(), covidItaData, covidRegionData)
+        );
+
+        if(!sendResponse.isOk()) {
+            return;
+        }
+
+        Message message = sendResponse.message();
+
+        if(message == null) {
+            return;
+        }
+
+        ConfigHelper.getInstance()
+                .getData()
+                .putDate(covidItaData.getDate())
+                .putMessageId(message.messageId())
+                .putTodayData(covidItaData, covidRegionData)
+                .commit();
     }
 
     private static List<Integer> getOptionPositions(String[] args) {

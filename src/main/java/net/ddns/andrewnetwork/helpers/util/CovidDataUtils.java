@@ -1,9 +1,13 @@
 package net.ddns.andrewnetwork.helpers.util;
 
+import net.ddns.andrewnetwork.model.ConfigSavedData;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class CovidDataUtils {
@@ -12,11 +16,11 @@ public final class CovidDataUtils {
         return list.stream().filter(covidRegionData -> covidRegionData.getRegionCode() == code).findAny().orElse(null);
     }
 
-    public static CovidRegionData getRegionByLabel(List<CovidRegionData> list, String region) {
+    public static CovidRegionData getRegionByLabel(Collection<CovidRegionData> list, String region) {
         return list.stream().filter(covidRegionData -> covidRegionData.getRegionLabel().equalsIgnoreCase(region)).findAny().orElse(null);
     }
 
-    public static List<CovidRegionData> getRegionByLabel(List<CovidRegionData> list, String... regions) {
+    public static Set<CovidRegionData> getRegionByLabel(Collection<CovidRegionData> list, String... regions) {
         return list.stream().filter(covidRegionData -> {
             boolean bool = false;
             for(String region : regions) {
@@ -28,10 +32,10 @@ public final class CovidDataUtils {
             }
 
             return bool;
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toSet());
     }
 
-    public static void computeVariationsList(List<CovidRegionData> newData, List<CovidRegionData> savedData) {
+    public static void computeVariationsList(Collection<CovidRegionData> newData, Collection<CovidRegionData> savedData) {
         for(CovidRegionData data : newData) {
             CovidRegionData saved = CovidDataUtils.getRegionByLabel(savedData, data.getRegionLabel());
 
@@ -48,5 +52,15 @@ public final class CovidDataUtils {
         data.setVariationTests(data.getTests() - saved.getTests());
         data.setVariationTotalCases(data.getTotalCases() - saved.getTotalCases());
         data.setVariationQuarantined(data.getQuarantined() - saved.getQuarantined());
+    }
+
+    public static ConfigSavedData getByDate(List<ConfigSavedData> data, Date date) {
+        for(ConfigSavedData saved : data) {
+            if(saved.getDate().getTime() == date.getTime()) {
+                return saved;
+            }
+        }
+
+        return null;
     }
 }

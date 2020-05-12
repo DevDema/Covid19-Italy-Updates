@@ -7,6 +7,7 @@ import net.ddns.andrewnetwork.model.CovidRegionData;
 import rx.Single;
 
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class MainPresenter {
@@ -16,7 +17,7 @@ public class MainPresenter {
                 AsyncCall.getRegionsData(regions),
                 Wrapper2::new).subscribe(dataWrapper -> {
                     CovidItaData covidItaData = dataWrapper.getObj1();
-                    List<CovidRegionData> covidRegionDataList = dataWrapper.getObj2();
+                    Set<CovidRegionData> covidRegionDataList = dataWrapper.getObj2();
 
                     MainEntry.onDataLoaded(covidItaData, covidRegionDataList);
                 }

@@ -7,7 +7,10 @@ import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 import rx.Single;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class AsyncCall {
     private static final ApiHelper apiHelper = new ApiHelper();
@@ -27,15 +30,15 @@ public final class AsyncCall {
         });
     }
 
-    public static Single<List<CovidRegionData>> getRegionsData(String[] regions) {
+    public static Single<Set<CovidRegionData>> getRegionsData(String[] regions) {
         return Single.create(emitter -> {
             List<CovidRegionData> data = apiHelper.getRegionsData();
 
             if(data != null) {
-                List<CovidRegionData> newData = CovidDataUtils.getRegionByLabel(data, regions);
-                List<CovidRegionData> savedData = ConfigHelper.getConfigData().getRegionsDataSaved();
-
+                Set<CovidRegionData> newData = CovidDataUtils.getRegionByLabel(data, regions);
+                Collection<CovidRegionData> savedData = ConfigHelper.getConfigData().getRegionsDataSaved();
                 CovidDataUtils.computeVariationsList(newData, savedData);
+
                 emitter.onSuccess(newData);
             } else {
                 emitter.onError(new Exception("Covid data region is null."));
