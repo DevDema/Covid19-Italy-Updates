@@ -1,5 +1,6 @@
 import net.ddns.andrewnetwork.helpers.ApiHelper;
-import net.ddns.andrewnetwork.helpers.ConfigHelper;
+import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
+import net.ddns.andrewnetwork.helpers.util.builder.ConfigSavedDataBuilder;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 import org.junit.jupiter.api.Test;
@@ -15,28 +16,31 @@ public class CachingTest {
         CovidItaData itaData = apiHelper.getItalyData();
         List<CovidRegionData> regionsData = apiHelper.getRegionsData();
 
-        ConfigHelper.getInstance()
+        ConfigDataBuilder.getInstance()
                 .getData()
-                .putDate(itaData.getDate())
-                .putTodayData(itaData, regionsData)
+                .putDays(ConfigSavedDataBuilder.getInstance()
+                        .newData()
+                        .putDate(itaData.getDate())
+                        .putTodayData(itaData, regionsData)
+                        .build())
                 .commit();
 
-        assert ConfigHelper.getConfigData() != null;
-        assert ConfigHelper.getConfigData().getDate() != null;
-        assert ConfigHelper.getConfigData().getItalyDataSaved() != null;
-        assert ConfigHelper.getConfigData().getRegionsDataSaved() != null && !ConfigHelper.getConfigData().getRegionsDataSaved().isEmpty();
-
+        assert ConfigDataBuilder.getConfigData() != null;
+        assert ConfigDataBuilder.getConfigData().getLastDay().getDate() != null;
+        assert ConfigDataBuilder.getConfigData().getLastDay().getItalyDataSaved() != null;
+        assert ConfigDataBuilder.getConfigData().getLastDay().getRegionsDataSaved() != null &&
+                !ConfigDataBuilder.getConfigData().getLastDay().getRegionsDataSaved().isEmpty();
     }
 
     @Test
     public void cacheMessageId() {
         long messageId = 4024372L;
 
-        ConfigHelper.getInstance()
+        ConfigDataBuilder.getInstance()
                 .getData()
                 .putMessageId(messageId)
                 .commit();
 
-        assert ConfigHelper.getConfigData().getMessageID() == messageId;
+        assert ConfigDataBuilder.getConfigData().getMessageID() == messageId;
     }
 }

@@ -1,8 +1,9 @@
 import net.ddns.andrewnetwork.MainEntry;
 import net.ddns.andrewnetwork.helpers.ApiHelper;
-import net.ddns.andrewnetwork.helpers.ConfigHelper;
+import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
+import net.ddns.andrewnetwork.helpers.util.builder.ConfigSavedDataBuilder;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class DataGetTest {
@@ -72,12 +74,13 @@ public class DataGetTest {
     @Test
     public void getRegionsData() {
         List<CovidRegionData> regionsData = apiHelper.getRegionsData();
+        Set<CovidRegionData> newData = CovidDataUtils.getRegionByLabel(regionsData, "Lombardia", "Puglia");
 
-        if(regionsData != null) {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Data: \n" + regionsData.toString());
+        if(newData != null) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Data: \n" + newData.toString());
         }
 
-        assert regionsData != null && !regionsData.isEmpty();
+        assert newData != null && !newData.isEmpty();
     }
 
     @Test
@@ -104,16 +107,19 @@ public class DataGetTest {
         todayCalendar.set(Calendar.YEAR, 2020);
 
 
-        ConfigHelper.getInstance()
+        ConfigDataBuilder.getInstance()
                 .getData()
-                .putDate(yesterday.getDate())
-                .putTodayData(yesterday, new HashSet<>())
+                .putDays(ConfigSavedDataBuilder.getInstance()
+                        .getLastData()
+                        .putTodayData(yesterday, new HashSet<>())
+                        .build()
+                )
                 .putChannelId(channelId)
                 .commit();
 
         MainEntry.onDataLoaded(today, new HashSet<>());
 
-        long messageId = ConfigHelper.getConfigData().getMessageID();
+        long messageId = ConfigDataBuilder.getConfigData().getMessageID();
 
         assert messageId != 0;
 
@@ -122,6 +128,6 @@ public class DataGetTest {
 
         MainEntry.onDataLoaded(today, new HashSet<>());
 
-        assert messageId == ConfigHelper.getConfigData().getMessageID();
+        assert messageId == ConfigDataBuilder.getConfigData().getMessageID();
     }
 }

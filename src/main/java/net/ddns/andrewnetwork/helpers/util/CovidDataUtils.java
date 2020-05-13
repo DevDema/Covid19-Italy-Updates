@@ -4,11 +4,9 @@ import net.ddns.andrewnetwork.model.ConfigSavedData;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class CovidDataUtils {
 
@@ -54,7 +52,7 @@ public final class CovidDataUtils {
         data.setVariationQuarantined(data.getQuarantined() - saved.getQuarantined());
     }
 
-    public static ConfigSavedData getByDate(List<ConfigSavedData> data, Date date) {
+    public static ConfigSavedData getByDate(Collection<ConfigSavedData> data, Date date) {
         for(ConfigSavedData saved : data) {
             if(saved.getDate().getTime() == date.getTime()) {
                 return saved;
@@ -62,5 +60,12 @@ public final class CovidDataUtils {
         }
 
         return null;
+    }
+
+    public static ConfigSavedData getMostRecentDate(Collection<ConfigSavedData> lastDays) {
+        return lastDays.stream()
+                .filter(configSavedData -> configSavedData.getDate() != null)
+                .max(Comparator.comparing(ConfigSavedData::getDate))
+                .orElse(null);
     }
 }

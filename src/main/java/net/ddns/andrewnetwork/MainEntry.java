@@ -1,13 +1,14 @@
 package net.ddns.andrewnetwork;
 
 import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
-import net.ddns.andrewnetwork.helpers.ConfigHelper;
+import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
 import net.ddns.andrewnetwork.helpers.util.ListUtils;
 import net.ddns.andrewnetwork.helpers.util.StringConfig;
+import net.ddns.andrewnetwork.helpers.util.builder.ConfigSavedDataBuilder;
+import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 import net.ddns.andrewnetwork.model.ConfigData;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
@@ -30,7 +31,7 @@ public class MainEntry {
         String requiredData = getRequiredData(args);
 
         getOptionalData(args);
-        ConfigData configData = ConfigHelper.getConfigData();
+        ConfigData configData = ConfigDataBuilder.getConfigData();
         TelegramHelper.setChannelId(configData.getChannelID());
 
         if(daemonMode) {
@@ -56,17 +57,18 @@ public class MainEntry {
 
     private static void getData() {
         if(DEBUG_MODE) {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("getting Data..." + ConfigHelper.getConfigData().getDate());
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("getting Data... Last Update:" +
+                    ConfigDataBuilder.getConfigData().getLastDay().getDate());
         }
 
         MAIN_PRESENTER.getData(regionsData);
     }
 
     public static void onDataLoaded(CovidItaData covidItaData, Set<CovidRegionData> covidRegionData) {
-        CovidItaData covidItaSavedData = ConfigHelper.getConfigData().getItalyDataSaved();
-        Set<CovidRegionData> covidRegionDataSavedList = new HashSet<>(ConfigHelper.getConfigData().getRegionsDataSaved());
+        CovidItaData covidItaSavedData = ConfigDataBuilder.getConfigData().getLastDay().getItalyDataSaved();
+        Set<CovidRegionData> covidRegionDataSavedList = new HashSet<>(ConfigDataBuilder.getConfigData().getLastDay().getRegionsDataSaved());
 
-        if(covidItaData.getDate().after(ConfigHelper.getConfigData().getDate())) {
+        if(DateUtil.isTomorrowDay(covidItaData.getDate(), ConfigDataBuilder.getConfigData().getLastDay().getDate())) {
             sendNewMessage(covidItaData, covidRegionData);
         } else if(!covidItaData.equals(covidItaSavedData) || !covidRegionData.equals(covidRegionDataSavedList)) {
             editLastMessage(covidItaData, covidRegionData);
@@ -78,7 +80,7 @@ public class MainEntry {
     }
 
     private static void editLastMessage(CovidItaData covidItaData, Collection<CovidRegionData> covidRegionData) {
-        long lastMessageId = ConfigHelper.getConfigData().getMessageID();
+        long lastMessageId = ConfigDataBuilder.getConfigData().getMessageID();
 
         BaseResponse baseResponse = TelegramHelper.editMessage((int) lastMessageId, StringConfig.buildFinalMessage(covidItaData.getDate(), covidItaData, covidRegionData));
 
@@ -86,11 +88,15 @@ public class MainEntry {
             return;
         }
 
-        ConfigHelper.getInstance()
+        ConfigDataBuilder.getInstance()
                 .getData()
-                .putDate(covidItaData.getDate())
+                .putDays(ConfigSavedDataBuilder.getInstance()
+                        .getLastData()
+                        .putTodayData(covidItaData, covidRegionData)
+                        .putDate(covidItaData.getDate())
+                        .build()
+                )
                 .putMessageId(lastMessageId)
-                .putTodayData(covidItaData, covidRegionData)
                 .commit();
     }
 
@@ -109,11 +115,15 @@ public class MainEntry {
             return;
         }
 
-        ConfigHelper.getInstance()
+        ConfigDataBuilder.getInstance()
                 .getData()
-                .putDate(covidItaData.getDate())
+                .putDays(ConfigSavedDataBuilder.getInstance()
+                        .newData()
+                        .putDate(covidItaData.getDate())
+                        .putTodayData(covidItaData, covidRegionData)
+                        .build()
+                )
                 .putMessageId(message.messageId())
-                .putTodayData(covidItaData, covidRegionData)
                 .commit();
     }
 
@@ -204,7 +214,7 @@ public class MainEntry {
                         throw new IllegalArgumentException(String.format(StringConfig.EXCEPTION_MANY_ARGS_OPTION, option, 1));
                     }
 
-                    ConfigHelper.setConfigPath(optionsData[0]);
+                    ConfigDataBuilder.setConfigPath(optionsData[0]);
                     break;
                 default:
                     throw new IllegalArgumentException(StringConfig.EXCEPTION_UNRECOGNIZED + option);

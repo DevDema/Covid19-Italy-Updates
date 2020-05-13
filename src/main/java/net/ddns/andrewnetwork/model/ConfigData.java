@@ -1,6 +1,7 @@
 package net.ddns.andrewnetwork.model;
 
 import com.google.gson.annotations.SerializedName;
+import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
 
 import java.util.*;
 
@@ -12,7 +13,7 @@ public class ConfigData {
     @SerializedName("last_message_id")
     private long messageID;
     @SerializedName("last_days")
-    private final List<ConfigSavedData> lastDays = new ArrayList<>();
+    private Collection<ConfigSavedData> lastDays = new ArrayList<>();
 
     public long getChannelID() {
         return channelID;
@@ -30,7 +31,16 @@ public class ConfigData {
         this.messageID = messageID;
     }
 
-    public List<ConfigSavedData> getLastDays() {
+    public Collection<ConfigSavedData> getLastDays() {
         return lastDays;
+    }
+
+    public void setLastDays(Collection<ConfigSavedData> lastDays) {
+        this.lastDays = lastDays;
+    }
+    public ConfigSavedData getLastDay() {
+        Collection<ConfigSavedData> lastDays = getLastDays();
+
+        return CovidDataUtils.getMostRecentDate(lastDays);
     }
 }
