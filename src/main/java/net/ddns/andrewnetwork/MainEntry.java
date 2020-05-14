@@ -42,7 +42,7 @@ public class MainEntry {
 
                 try {
                     if (DEBUG_MODE) {
-                        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(String.format(StringConfig.EXCEPTION_MANY_ARGS_OPTION, DELAY / 1000));
+                        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(String.format(StringConfig.DAEMON_MODE_WAITING, (int) DELAY / 1000));
                     }
                     Thread.sleep(DELAY);
                 } catch (InterruptedException e) {
