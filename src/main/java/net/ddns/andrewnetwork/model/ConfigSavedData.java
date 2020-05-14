@@ -2,6 +2,7 @@ package net.ddns.andrewnetwork.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
@@ -13,6 +14,13 @@ public class ConfigSavedData {
     private CovidItaData italyDataSaved;
     @SerializedName("regions_data_saved")
     private Collection<CovidRegionData> regionsDataSaved;
+
+    public ConfigSavedData() {
+        Date date = Calendar.getInstance().getTime();
+        date.setTime(0L);
+
+        this.date = date;
+    }
 
     public Date getDate() {
         return date;

@@ -4,10 +4,10 @@ import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigSavedDataBuilder;
+import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.Calendar;
 import java.util.HashSet;
@@ -21,6 +21,17 @@ public class DataGetTest {
     private static final CovidItaData today = new CovidItaData();
     private static final CovidItaData yesterday = new CovidItaData();
     private static final long channelId = -1001446903259L;
+
+    @BeforeEach
+    public void setupEach() {
+        ConfigDataBuilder.clear();
+    }
+
+    @AfterAll
+    public static void setupAfter() {
+        ConfigDataBuilder.clear();
+    }
+
     @BeforeAll
     public static void setup() {
         TelegramHelper.setChannelId(channelId);
@@ -28,13 +39,18 @@ public class DataGetTest {
         Calendar todayCalendar = Calendar.getInstance();
         Calendar yesterdayCalendar = Calendar.getInstance();
 
+        DateUtil.setMidnight(todayCalendar);
+        DateUtil.setMidnight(yesterdayCalendar);
+
         todayCalendar.set(Calendar.DAY_OF_MONTH, 4);
         todayCalendar.set(Calendar.MONTH, Calendar.MAY);
         todayCalendar.set(Calendar.YEAR, 2020);
+        todayCalendar.set(Calendar.HOUR_OF_DAY, 17);
 
         yesterdayCalendar.set(Calendar.DAY_OF_MONTH, 3);
         yesterdayCalendar.set(Calendar.MONTH, Calendar.MAY);
         yesterdayCalendar.set(Calendar.YEAR, 2020);
+        yesterdayCalendar.set(Calendar.HOUR_OF_DAY, 17);
 
         today.setDate(todayCalendar.getTime());
         today.setTotalCases(211938); //4 MAY 2020
@@ -100,13 +116,7 @@ public class DataGetTest {
 
     @Test
     public void editedMessageTest() {
-        Calendar todayCalendar = Calendar.getInstance();
-
-        todayCalendar.set(Calendar.DAY_OF_MONTH, 3);
-        todayCalendar.set(Calendar.MONTH, Calendar.MAY);
-        todayCalendar.set(Calendar.YEAR, 2020);
-
-
+        ConfigDataBuilder.clear();
         ConfigDataBuilder.getInstance()
                 .getData()
                 .putDays(ConfigSavedDataBuilder.getInstance()
@@ -124,7 +134,8 @@ public class DataGetTest {
         assert messageId != 0;
 
         today.setQuarantined(80650);
-        today.setDate(todayCalendar.getTime());
+
+        CovidDataUtils.computeVariations(today, yesterday);
 
         MainEntry.onDataLoaded(today, new HashSet<>());
 

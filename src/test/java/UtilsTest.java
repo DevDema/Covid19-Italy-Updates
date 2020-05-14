@@ -39,14 +39,20 @@ public class UtilsTest {
 
     @Test
     public void isTomorrow() {
-        Calendar date = Calendar.getInstance();
+        Calendar date1 = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
 
-        date.set(Calendar.HOUR_OF_DAY, 17);
+        date1.set(Calendar.HOUR_OF_DAY, 17);
         date2.set(Calendar.HOUR_OF_DAY, 17);
 
         date2.add(Calendar.DAY_OF_MONTH, 1);
 
-        assert DateUtil.isTomorrowDay(date, date2);
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Date1: " + date1.getTime().getTime());
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Date2: " + date2.getTime().getTime());
+        long subtraction = date2.getTime().getTime() - date1.getTime().getTime();
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Subtraction: " + subtraction);
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Result: " + (subtraction == DATE_TIME_24));
+
+        assert DateUtil.isTomorrowDay(date1, date2);
     }
 }

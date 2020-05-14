@@ -10,11 +10,13 @@ import net.ddns.andrewnetwork.helpers.util.StringConfig;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigSavedDataBuilder;
 import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 import net.ddns.andrewnetwork.model.ConfigData;
+import net.ddns.andrewnetwork.model.ConfigSavedData;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class MainEntry {
     private static long DELAY = 5*60*1000L; // 5 MINUTES
@@ -65,10 +67,16 @@ public class MainEntry {
     }
 
     public static void onDataLoaded(CovidItaData covidItaData, Set<CovidRegionData> covidRegionData) {
-        CovidItaData covidItaSavedData = ConfigDataBuilder.getConfigData().getLastDay().getItalyDataSaved();
-        Set<CovidRegionData> covidRegionDataSavedList = new HashSet<>(ConfigDataBuilder.getConfigData().getLastDay().getRegionsDataSaved());
+        ConfigSavedData configSavedData = ConfigDataBuilder.getConfigData().getLastDay();
+        CovidItaData covidItaSavedData = configSavedData != null ? configSavedData.getItalyDataSaved() : new CovidItaData();
+        Set<CovidRegionData> covidRegionDataSavedList = configSavedData != null
+                ? new HashSet<>(configSavedData.getRegionsDataSaved())
+                : new HashSet<>();
 
-        if(DateUtil.isTomorrowDay(covidItaData.getDate(), ConfigDataBuilder.getConfigData().getLastDay().getDate())) {
+        Set<Date> newDates = covidRegionData.stream().map(CovidItaData::getDate).collect(Collectors.toSet());
+        newDates.add(covidItaData.getDate());
+
+        if(covidItaSavedData.getDate() == null || DateUtil.isTomorrowDay(DateUtil.max(newDates), configSavedData.getDate())) {
             sendNewMessage(covidItaData, covidRegionData);
         } else if(!covidItaData.equals(covidItaSavedData) || !covidRegionData.equals(covidRegionDataSavedList)) {
             editLastMessage(covidItaData, covidRegionData);
@@ -93,7 +101,6 @@ public class MainEntry {
                 .putDays(ConfigSavedDataBuilder.getInstance()
                         .getLastData()
                         .putTodayData(covidItaData, covidRegionData)
-                        .putDate(covidItaData.getDate())
                         .build()
                 )
                 .putMessageId(lastMessageId)
@@ -119,7 +126,6 @@ public class MainEntry {
                 .getData()
                 .putDays(ConfigSavedDataBuilder.getInstance()
                         .newData()
-                        .putDate(covidItaData.getDate())
                         .putTodayData(covidItaData, covidRegionData)
                         .build()
                 )
