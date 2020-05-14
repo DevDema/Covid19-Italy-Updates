@@ -1,16 +1,28 @@
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.response.SendResponse;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class TelegramTest {
 
+    private static Set<Long> messagesToBeDeleted = new HashSet<>();
     @BeforeAll
     public static void setup() {
         TelegramHelper.setChannelId(-1001446903259L);
+    }
+
+    @AfterAll
+    public static void setupAfter() {
+        for(long message : messagesToBeDeleted) {
+            TelegramHelper.deleteMessage(message);
+        }
     }
 
     @Test
@@ -22,6 +34,8 @@ public class TelegramTest {
         }
 
         assert sendResponse.isOk();
+
+        messagesToBeDeleted.add(Long.valueOf(sendResponse.message().messageId()));
     }
 
     @Test
@@ -36,5 +50,7 @@ public class TelegramTest {
 
         Message message = sendResponse.message();
         assert TelegramHelper.editMessage(message.messageId(), "TEST STRING! EDITED VERSION!").isOk();
+
+        messagesToBeDeleted.add(Long.valueOf(sendResponse.message().messageId()));
     }
 }

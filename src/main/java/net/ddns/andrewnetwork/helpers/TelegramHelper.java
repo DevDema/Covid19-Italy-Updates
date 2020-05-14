@@ -2,6 +2,7 @@ package net.ddns.andrewnetwork.helpers;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
@@ -18,8 +19,12 @@ public class TelegramHelper {
         return bot.execute(new SendMessage(getChannelID(), message).parseMode(ParseMode.HTML));
     }
 
-    public static BaseResponse editMessage(int messageId, String message) {
-        return bot.execute(new EditMessageText(getChannelID(), messageId, message).parseMode(ParseMode.HTML));
+    public static BaseResponse editMessage(long messageId, String message) {
+        return bot.execute(new EditMessageText(getChannelID(), (int) messageId, message).parseMode(ParseMode.HTML));
+    }
+
+    public static BaseResponse deleteMessage(long messageId) {
+        return bot.execute(new DeleteMessage(getChannelID(), (int) messageId));
     }
 
     public static long getChannelID() {

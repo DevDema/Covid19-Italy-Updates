@@ -34,6 +34,10 @@ public final class CovidDataUtils {
     }
 
     public static void computeVariationsList(Collection<CovidRegionData> newData, Collection<CovidRegionData> savedData) {
+        if(savedData == null || savedData.isEmpty()) {
+            return;
+        }
+
         for(CovidRegionData data : newData) {
             CovidRegionData saved = CovidDataUtils.getRegionByLabel(savedData, data.getRegionLabel());
 
@@ -42,6 +46,10 @@ public final class CovidDataUtils {
     }
 
     public static void computeVariations(CovidItaData data, CovidItaData saved) {
+        if(saved == null) {
+            return;
+        }
+
         data.setVariationDeaths(data.getDeaths() - saved.getDeaths());
         data.setVariationHospitalized(data.getHospitalized() - saved.getHospitalized());
         data.setVariationIntensiveCare(data.getIntensiveCare() - saved.getIntensiveCare());

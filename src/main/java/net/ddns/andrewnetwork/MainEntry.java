@@ -60,7 +60,7 @@ public class MainEntry {
     private static void getData() {
         if(DEBUG_MODE) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("getting Data... Last Update:" +
-                    ConfigDataBuilder.getConfigData().getLastDay().getDate());
+                    (ConfigDataBuilder.getConfigData() != null && ConfigDataBuilder.getConfigData().getLastDay() != null ? ConfigDataBuilder.getConfigData().getLastDay().getDate() : "Never"));
         }
 
         MAIN_PRESENTER.getData(regionsData);

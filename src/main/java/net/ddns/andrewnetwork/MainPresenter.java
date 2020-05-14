@@ -21,7 +21,7 @@ public class MainPresenter {
 
                     MainEntry.onDataLoaded(covidItaData, covidRegionDataList);
                 }
-                , throwable -> Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("ERROR COULD NOT RETRIEVE DATA: " + throwable.getMessage())
+                , throwable -> Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("ERROR COULD NOT RETRIEVE DATA: " + throwable.getCause())
         );
     }
 }

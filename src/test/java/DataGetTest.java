@@ -9,10 +9,7 @@ import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 import org.junit.jupiter.api.*;
 
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class DataGetTest {
@@ -21,6 +18,7 @@ public class DataGetTest {
     private static final CovidItaData today = new CovidItaData();
     private static final CovidItaData yesterday = new CovidItaData();
     private static final long channelId = -1001446903259L;
+    private static Set<Long> messagesToBeDeleted = new HashSet<>();
 
     @BeforeEach
     public void setupEach() {
@@ -30,6 +28,10 @@ public class DataGetTest {
     @AfterAll
     public static void setupAfter() {
         ConfigDataBuilder.clear();
+
+        for(long message : messagesToBeDeleted) {
+            TelegramHelper.deleteMessage(message);
+        }
     }
 
     @BeforeAll
@@ -140,5 +142,45 @@ public class DataGetTest {
         MainEntry.onDataLoaded(today, new HashSet<>());
 
         assert messageId == ConfigDataBuilder.getConfigData().getMessageID();
+
+        messagesToBeDeleted.add(messageId);
+    }
+
+    @Test
+    public void newMessageTest() {
+        Calendar tomorrowCalendar = Calendar.getInstance(); //5 MAY 2020
+
+        tomorrowCalendar.setTime(today.getDate());
+
+        tomorrowCalendar.add(Calendar.DAY_OF_MONTH, 1);
+        tomorrowCalendar.set(Calendar.HOUR_OF_DAY, 17);
+
+        CovidItaData tomorrow = new CovidItaData();
+        tomorrow.setDate(tomorrowCalendar.getTime());
+
+        ConfigDataBuilder.clear();
+        ConfigDataBuilder.getInstance()
+                .getData()
+                .putDays(ConfigSavedDataBuilder.getInstance()
+                        .getLastData()
+                        .putTodayData(yesterday, new HashSet<>())
+                        .build()
+                )
+                .putChannelId(channelId)
+                .commit();
+
+        MainEntry.onDataLoaded(today, new HashSet<>());
+
+        long messageId = ConfigDataBuilder.getConfigData().getMessageID();
+
+        assert messageId != 0;
+
+        MainEntry.onDataLoaded(tomorrow, new HashSet<>());
+
+        long messageIdNew = ConfigDataBuilder.getConfigData().getMessageID();
+
+        assert messageId != messageIdNew;
+
+        messagesToBeDeleted.add(messageId);
     }
 }

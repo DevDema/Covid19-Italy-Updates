@@ -40,7 +40,7 @@ public class CovidRegionData extends CovidItaData {
 
         CovidRegionData that = (CovidRegionData) o;
 
-        return regionCode == that.regionCode && super.equals(o);
+        return regionCode == that.regionCode;
     }
 
     @Override

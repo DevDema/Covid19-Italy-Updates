@@ -3,6 +3,7 @@ package net.ddns.andrewnetwork.helpers.async;
 import net.ddns.andrewnetwork.helpers.ApiHelper;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
+import net.ddns.andrewnetwork.model.ConfigData;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 import rx.Single;
@@ -19,7 +20,7 @@ public final class AsyncCall {
             CovidItaData newData = apiHelper.getItalyData();
 
             if(newData != null) {
-                CovidItaData savedData = ConfigDataBuilder.getConfigData().getLastDay().getItalyDataSaved();
+                CovidItaData savedData = ConfigDataBuilder.getConfigData() != null && ConfigDataBuilder.getConfigData().getLastDay() != null ? ConfigDataBuilder.getConfigData().getLastDay().getItalyDataSaved() : null;
 
                 CovidDataUtils.computeVariations(newData, savedData);
                 emitter.onSuccess(newData);
@@ -35,7 +36,7 @@ public final class AsyncCall {
 
             if(data != null) {
                 Set<CovidRegionData> newData = CovidDataUtils.getRegionByLabel(data, regions);
-                Collection<CovidRegionData> savedData = ConfigDataBuilder.getConfigData().getLastDay().getRegionsDataSaved();
+                Collection<CovidRegionData> savedData = ConfigDataBuilder.getConfigData() != null && ConfigDataBuilder.getConfigData().getLastDay() != null ? ConfigDataBuilder.getConfigData().getLastDay().getRegionsDataSaved() : null;
                 CovidDataUtils.computeVariationsList(newData, savedData);
 
                 emitter.onSuccess(newData);
