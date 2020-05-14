@@ -38,7 +38,7 @@ public class CovidItaData implements Serializable {
 
     @SerializedName("variazione_totale_positivi")
     protected int variationPositive;
-    protected int variationQuarantined;
+    protected transient int variationQuarantined;
     protected transient int variationDeaths;
     protected transient int variationRecovered;
     protected transient int variationTests;
