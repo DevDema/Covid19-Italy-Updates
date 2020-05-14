@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 public class UtilsTest {
 
-    private static long DATE_TIME_24 = 24*60*60*1000;
+    private static final long DATE_TIME_24 = 24 * 60 * 60 * 1000;
 
     @Test
     public void midnightDateTest() {

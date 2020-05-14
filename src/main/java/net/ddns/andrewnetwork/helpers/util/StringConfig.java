@@ -8,8 +8,6 @@ import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 public final class StringConfig {
 
@@ -22,7 +20,7 @@ public final class StringConfig {
     public static final String EXCEPTION_MANY_ARGS_OPTION = "Too much arguments for option -%c" + " Required: %d";
     public static final String EXCEPTION_OPTION_NUMBER_FORMAT = "Incorrect number format for option -";
     public static final String EXCEPTION_UNRECOGNIZED = "Unrecognized option -";
-    public static final String DAEMON_MODE_WAITING = "Daemon Mode, waiting...";
+    public static final String DAEMON_MODE_WAITING = "Daemon Mode, waiting %d seconds...";
 
     public static String buildFinalMessage(Date date, CovidItaData italyData, Collection<CovidRegionData> regionDataList) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");

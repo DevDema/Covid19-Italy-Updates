@@ -2,7 +2,6 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.response.SendResponse;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +11,7 @@ import java.util.logging.Logger;
 
 public class TelegramTest {
 
-    private static Set<Long> messagesToBeDeleted = new HashSet<>();
+    private static final Set<Long> messagesToBeDeleted = new HashSet<>();
     @BeforeAll
     public static void setup() {
         TelegramHelper.setChannelId(-1001446903259L);

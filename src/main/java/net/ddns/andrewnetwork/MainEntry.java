@@ -3,10 +3,10 @@ package net.ddns.andrewnetwork;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
-import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
 import net.ddns.andrewnetwork.helpers.util.ListUtils;
 import net.ddns.andrewnetwork.helpers.util.StringConfig;
+import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigSavedDataBuilder;
 import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 import net.ddns.andrewnetwork.model.ConfigData;
@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class MainEntry {
-    private static long DELAY = 5*60*1000L; // 5 MINUTES
+    private static long DELAY = 5 * 60 * 1000L; // 5 MINUTES
     private static boolean DEBUG_MODE = false;
     private static final String OPTION_PATTERN = "-[a-z,A-Z]"; //pattern for specified option
     private static final MainPresenter MAIN_PRESENTER = new MainPresenter();
@@ -36,13 +36,13 @@ public class MainEntry {
         ConfigData configData = ConfigDataBuilder.getConfigData();
         TelegramHelper.setChannelId(configData.getChannelID());
 
-        if(daemonMode) {
+        if (daemonMode) {
             while (true) {
                 getData();
 
                 try {
-                    if(DEBUG_MODE) {
-                        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(StringConfig.DAEMON_MODE_WAITING);
+                    if (DEBUG_MODE) {
+                        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(String.format(StringConfig.EXCEPTION_MANY_ARGS_OPTION, DELAY / 1000));
                     }
                     Thread.sleep(DELAY);
                 } catch (InterruptedException e) {
@@ -58,7 +58,7 @@ public class MainEntry {
     }
 
     private static void getData() {
-        if(DEBUG_MODE) {
+        if (DEBUG_MODE) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("getting Data... Last Update:" +
                     (ConfigDataBuilder.getConfigData() != null && ConfigDataBuilder.getConfigData().getLastDay() != null ? ConfigDataBuilder.getConfigData().getLastDay().getDate() : "Never"));
         }
@@ -76,13 +76,16 @@ public class MainEntry {
         Set<Date> newDates = covidRegionData.stream().map(CovidItaData::getDate).collect(Collectors.toSet());
         newDates.add(covidItaData.getDate());
 
-        if(covidItaSavedData.getDate() == null || DateUtil.isTomorrowDay(DateUtil.max(newDates), configSavedData.getDate())) {
+        if (covidItaSavedData.getDate() == null || DateUtil.isTomorrowDay(DateUtil.max(newDates), configSavedData.getDate())) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("New data found! Date: " + DateUtil.max(newDates) + ". Updating...");
+
             sendNewMessage(covidItaData, covidRegionData);
-        } else if(!covidItaData.equals(covidItaSavedData) || !covidRegionData.equals(covidRegionDataSavedList)) {
+        } else if (!covidItaData.equals(covidItaSavedData) || !covidRegionData.equals(covidRegionDataSavedList)) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Data were edited! Updating...");
             editLastMessage(covidItaData, covidRegionData);
         } else {
-            if(DEBUG_MODE) {
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Data is not updated.");
+            if (DEBUG_MODE) {
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Data is not updated. Skipping...");
             }
         }
     }
@@ -92,7 +95,8 @@ public class MainEntry {
 
         BaseResponse baseResponse = TelegramHelper.editMessage((int) lastMessageId, StringConfig.buildFinalMessage(covidItaData.getDate(), covidItaData, covidRegionData));
 
-        if(!baseResponse.isOk()) {
+        if (!baseResponse.isOk()) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Telegram editing FAILED! Error Code: " + baseResponse.errorCode());
             return;
         }
 
@@ -112,13 +116,14 @@ public class MainEntry {
                 StringConfig.buildFinalMessage(covidItaData.getDate(), covidItaData, covidRegionData)
         );
 
-        if(!sendResponse.isOk()) {
+        if (!sendResponse.isOk()) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Telegram sending FAILED! Error Code: " + sendResponse.errorCode());
             return;
         }
 
         Message message = sendResponse.message();
 
-        if(message == null) {
+        if (message == null) {
             return;
         }
 
@@ -187,7 +192,7 @@ public class MainEntry {
                     }
 
                     try {
-                        if(optionsData[0].contains("*") || optionsData[0].contains("+")
+                        if (optionsData[0].contains("*") || optionsData[0].contains("+")
                                 || optionsData[0].contains("-") || optionsData[0].contains("/")) {
                             throw new IllegalArgumentException(StringConfig.EXCEPTION_OPTION_NUMBER_FORMAT + option);
                         }

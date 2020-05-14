@@ -1,15 +1,21 @@
 import net.ddns.andrewnetwork.MainEntry;
 import net.ddns.andrewnetwork.helpers.ApiHelper;
-import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
+import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigSavedDataBuilder;
 import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class DataGetTest {
@@ -18,7 +24,7 @@ public class DataGetTest {
     private static final CovidItaData today = new CovidItaData();
     private static final CovidItaData yesterday = new CovidItaData();
     private static final long channelId = -1001446903259L;
-    private static Set<Long> messagesToBeDeleted = new HashSet<>();
+    private static final Set<Long> messagesToBeDeleted = new HashSet<>();
 
     @BeforeEach
     public void setupEach() {

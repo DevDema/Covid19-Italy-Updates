@@ -6,7 +6,6 @@ import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 import rx.Single;
 
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -21,7 +20,7 @@ public class MainPresenter {
 
                     MainEntry.onDataLoaded(covidItaData, covidRegionDataList);
                 }
-                , throwable -> Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("ERROR COULD NOT RETRIEVE DATA: " + throwable.getCause())
+                , throwable -> Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Error retrieving data: " + throwable.getCause())
         );
     }
 }
