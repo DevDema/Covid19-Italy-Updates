@@ -66,7 +66,7 @@ public class MainEntry {
         MAIN_PRESENTER.getData(regionsData);
     }
 
-    public static void onDataLoaded(CovidItaData covidItaData, Set<CovidRegionData> covidRegionData) {
+    public static boolean onDataLoaded(CovidItaData covidItaData, Set<CovidRegionData> covidRegionData) {
         ConfigSavedData configSavedData = ConfigDataBuilder.getConfigData().getLastDay();
         CovidItaData covidItaSavedData = configSavedData != null ? configSavedData.getItalyDataSaved() : new CovidItaData();
         Set<CovidRegionData> covidRegionDataSavedList = configSavedData != null
@@ -76,18 +76,30 @@ public class MainEntry {
         Set<Date> newDates = covidRegionData.stream().map(CovidItaData::getDate).collect(Collectors.toSet());
         newDates.add(covidItaData.getDate());
 
-        if (covidItaSavedData.getDate() == null || DateUtil.isTomorrowDay(DateUtil.max(newDates), configSavedData.getDate())) {
+        boolean areDatesEqual = DateUtil.areSameDays(newDates);
+
+        if (!areDatesEqual) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Dates are different. Seems like a partial update. Skipping...");
+            return false;
+        }
+
+        if (configSavedData == null || covidItaSavedData.getDate() == null ||
+                DateUtil.isTomorrowDay(covidItaData.getDate(), configSavedData.getDate())) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("New data found! Date: " + DateUtil.max(newDates) + ". Updating...");
 
             sendNewMessage(covidItaData, covidRegionData);
+            return true;
         } else if (!covidItaData.equals(covidItaSavedData) || !covidRegionData.equals(covidRegionDataSavedList)) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Data were edited! Updating...");
             editLastMessage(covidItaData, covidRegionData);
+            return true;
         } else {
             if (DEBUG_MODE) {
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Data is not updated. Skipping...");
             }
         }
+
+        return false;
     }
 
     private static void editLastMessage(CovidItaData covidItaData, Collection<CovidRegionData> covidRegionData) {

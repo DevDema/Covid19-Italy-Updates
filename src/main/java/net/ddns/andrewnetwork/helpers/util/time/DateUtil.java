@@ -1,6 +1,9 @@
 package net.ddns.andrewnetwork.helpers.util.time;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DateUtil {
@@ -17,10 +20,12 @@ public class DateUtil {
         return calendar.getTime();
     }
 
-    public static void setMidnight(Date date) {
+    public static Date setMidnight(Date date) {
         Calendar calendar = toCalendar(date);
 
         setMidnight(calendar);
+
+        return calendar.getTime();
     }
 
     public static void setMidnight(Calendar calendar) {
@@ -39,9 +44,6 @@ public class DateUtil {
             return false;
         }
 
-        setMidnight(date1);
-        setMidnight(date2);
-
         return date1.getTime() == date2.getTime();
     }
 
@@ -53,9 +55,6 @@ public class DateUtil {
         if(date2 == null || date1 == null) {
             throw new IllegalArgumentException("Date1 or Date2 are null.");
         }
-
-        setMidnight(date1);
-        setMidnight(date2);
 
         return Math.abs(date1.getTime() - date2.getTime()) == DATE_TIME_24;
     }
@@ -83,5 +82,11 @@ public class DateUtil {
 
     public static Date max(Collection<Date> dates) {
         return dates.stream().max(Date::compareTo).orElse(null);
+    }
+
+    public static boolean areSameDays(Collection<Date> newDates) {
+        Collection<Calendar> calendars = newDates.stream().map(DateUtil::toCalendar).collect(Collectors.toSet());
+
+        return calendars.stream().peek(DateUtil::setMidnight).map(Calendar::getTime).map(Date::getTime).distinct().count() == 1;
     }
 }

@@ -135,7 +135,7 @@ public class DataGetTest {
                 .putChannelId(channelId)
                 .commit();
 
-        MainEntry.onDataLoaded(today, new HashSet<>());
+        assert MainEntry.onDataLoaded(today, new HashSet<>());
 
         long messageId = ConfigDataBuilder.getConfigData().getMessageID();
 
@@ -145,9 +145,10 @@ public class DataGetTest {
 
         CovidDataUtils.computeVariations(today, yesterday);
 
-        MainEntry.onDataLoaded(today, new HashSet<>());
+        assert MainEntry.onDataLoaded(today, new HashSet<>());
 
         assert messageId == ConfigDataBuilder.getConfigData().getMessageID();
+        assert ConfigDataBuilder.getConfigData().getLastDay() != null && ConfigDataBuilder.getConfigData().getLastDay().getItalyDataSaved().getQuarantined() == 80650;
 
         messagesToBeDeleted.add(messageId);
     }
@@ -175,18 +176,38 @@ public class DataGetTest {
                 .putChannelId(channelId)
                 .commit();
 
-        MainEntry.onDataLoaded(today, new HashSet<>());
+        assert MainEntry.onDataLoaded(today, new HashSet<>());
 
         long messageId = ConfigDataBuilder.getConfigData().getMessageID();
 
         assert messageId != 0;
 
-        MainEntry.onDataLoaded(tomorrow, new HashSet<>());
+        assert MainEntry.onDataLoaded(tomorrow, new HashSet<>());
 
         long messageIdNew = ConfigDataBuilder.getConfigData().getMessageID();
 
         assert messageId != messageIdNew;
 
         messagesToBeDeleted.add(messageId);
+    }
+
+    @Test
+    public void noMessageSentOnDifferentDays() {
+        CovidRegionData covidRegionData = new CovidRegionData();
+        CovidRegionData covidRegionData2 = new CovidRegionData();
+        Set<CovidRegionData> covidRegionDataCollection = new HashSet<>();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today.getDate());
+        calendar.add(Calendar.DAY_OF_MONTH, -1);
+
+        covidRegionData.setDate(calendar.getTime());
+        covidRegionData2.setDate(calendar.getTime());
+
+        covidRegionDataCollection.add(covidRegionData);
+        covidRegionDataCollection.add(covidRegionData2);
+
+        assert !MainEntry.onDataLoaded(today, covidRegionDataCollection);
+
     }
 }

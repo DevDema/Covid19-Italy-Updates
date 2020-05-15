@@ -2,6 +2,9 @@ import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 import org.junit.jupiter.api.Test;
 
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class UtilsTest {
@@ -54,5 +57,23 @@ public class UtilsTest {
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Result: " + (subtraction == DATE_TIME_24));
 
         assert DateUtil.isTomorrowDay(date1, date2);
+    }
+
+    @Test
+    public void areSameDays() {
+        Set<Date> dateSet = new HashSet<>();
+
+        dateSet.add(Calendar.getInstance().getTime());
+        dateSet.add(Calendar.getInstance().getTime());
+        dateSet.add(Calendar.getInstance().getTime());
+
+        assert DateUtil.areSameDays(dateSet);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+
+        dateSet.add(calendar.getTime());
+
+        assert !DateUtil.areSameDays(dateSet);
     }
 }
