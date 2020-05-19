@@ -1,5 +1,6 @@
 package net.ddns.andrewnetwork.helpers.util;
 
+import com.vdurmont.emoji.EmojiParser;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 
@@ -26,7 +27,7 @@ public final class StringConfig {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
         String dateString = simpleDateFormat.format(date);
 
-        StringBuilder finalSB = new StringBuilder("<b>[AGGIORNAMENTO GIORNALIERO]</b>\nAggiornamento situazione Covid-19 del " + dateString + ":");
+        StringBuilder finalSB = new StringBuilder("<b>[AGGIORNAMENTO GIORNALIERO " + getAlertEmoji() + "]</b>\nAggiornamento situazione Covid-19 del " + dateString + ":");
 
         finalSB.append(italyData);
 
@@ -53,11 +54,11 @@ public final class StringConfig {
         return (number > 0 ? "+" : "") + formatNumber(number);
     }
 
-    public static String getStatusEmojiCode(int number) {
-        return number < 0 ? "\\xE2\\x9C\\x85" : "\\xE2\\x9A\\xA0";
+    public static String getItalyEmoji() {
+        return EmojiParser.parseToUnicode(":it:");
     }
 
-    public static String getItalyEmoji() {
-        return "&#1F613;";
+    public static String getAlertEmoji() {
+        return EmojiParser.parseToUnicode(":red_circle:");
     }
 }

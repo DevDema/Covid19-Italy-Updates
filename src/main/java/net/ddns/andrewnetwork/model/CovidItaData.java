@@ -224,7 +224,7 @@ public class CovidItaData implements Serializable {
     }
 
     protected String getTitleString() {
-        return "ITALIA";
+        return "ITALIA " + StringConfig.getItalyEmoji();
     }
 
     @Override
