@@ -6,7 +6,7 @@
 
     <groupId>groupId</groupId>
     <artifactId>Covid-Updates</artifactId>
-    <version>1.2.1-ITA-LOMBARDIA-PUGLIA</version>
+    <version>1.2.2-ITA-LOMBARDIA-PUGLIA</version>
     <build>
         <plugins>
             <plugin>
