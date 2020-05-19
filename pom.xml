@@ -3,7 +3,12 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit-jupiter.version>5.5.0</junit-jupiter.version>
+        <maven-compiler.version>3.3</maven-compiler.version>
+        <maven-jar.version>3.2.0</maven-jar.version>
+    </properties>
     <groupId>groupId</groupId>
     <artifactId>Covid-Updates</artifactId>
     <version>1.2.2-ITA-LOMBARDIA-PUGLIA</version>
@@ -16,6 +21,7 @@
                     <source>8</source>
                     <target>8</target>
                 </configuration>
+                <version>${maven-compiler.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -42,6 +48,7 @@
                         </manifest>
                     </archive>
                 </configuration>
+                <version>${maven-jar.version}</version>
             </plugin>
         </plugins>
     </build>
@@ -61,7 +68,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
+            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
