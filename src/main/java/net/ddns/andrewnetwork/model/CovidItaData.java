@@ -261,15 +261,15 @@ public class CovidItaData implements Serializable {
     @Override
     public String toString() {
         return "\n\n<b>[" + getTitleString() + "]</b>:\n" +
-                "<b>" + StringConfig.formatVariation(newPositives) + "</b> <b>Nuovi Casi</b>\n" +
-                "<b>" + StringConfig.formatVariation(variationPositive) + "</b> <b>Casi Positivi</b>\n" +
-                (variationDeaths != 0 ? "<b>" + StringConfig.formatVariation(variationDeaths) + "</b> <b>Morti</b>\n" : "") +
-                (variationRecovered != 0 ? "<b>" + StringConfig.formatVariation(variationRecovered) + "</b> <b>Guariti</b>\n" : "") +
-                (variationHospitalized != 0 ? "<b>" + StringConfig.formatVariation(variationHospitalized) + "</b> <b>Ospedalizzati</b>\n" : "") +
+                "<b>" + StringConfig.formatVariation(newPositives) + "</b> " + (Math.abs(newPositives) != 1 ? "<b>Nuovi Casi</b>\n" : "<b>Nuovo Caso</b>\n") +
+                "<b>" + StringConfig.formatVariation(variationPositive) + "</b> " + (Math.abs(variationPositive) != 1 ? "<b>Casi Positivi</b>\n" : "<b>Caso Positivo</b>\n") +
+                (variationDeaths != 0 ? "<b>" + StringConfig.formatVariation(variationDeaths) + "</b> " + (Math.abs(variationDeaths) > 1 ? "<b>Morti</b>\n" : "<b>Morto</b>\n") : "") +
+                (variationRecovered != 0 ? "<b>" + StringConfig.formatVariation(variationRecovered) + "</b> " + (Math.abs(variationRecovered) > 1 ? "<b>Guariti</b>\n" : "<b>Guarito</b>\n") : "") +
+                (variationHospitalized != 0 ? "<b>" + StringConfig.formatVariation(variationHospitalized) + "</b> " + (Math.abs(variationHospitalized) > 1 ? "<b>Ospedalizzati</b>\n" : "<b>Ospedalizzato</b>\n") : "") +
                 (variationIntensiveCare != 0 ? "<b>" + StringConfig.formatVariation(variationIntensiveCare) + "</b> in <b>Terapia Intensiva</b>\n" : "") +
                 (variationQuarantined != 0 ? "<b>" + StringConfig.formatVariation(variationQuarantined) + "</b> in <b>Quarantena</b>\n" : "") +
-                (variationTests != 0 ? "<b>" + StringConfig.formatVariation(variationTests) + "</b> <b>Tamponi</b>\n" : "") +
-                (variationTestedPeople != 0 ? "<b>" + StringConfig.formatVariation(variationTestedPeople) + "</b> <b>Persone testate</b>\n" : "") +
+                (variationTests != 0 ? "<b>" + StringConfig.formatVariation(variationTests) + "</b> " + (Math.abs(variationTests) > 1 ? "<b>Tamponi</b>\n" : "<b>Tampone</b>\n") : "") +
+                (variationTestedPeople != 0 ? "<b>" + StringConfig.formatVariation(variationTestedPeople) + "</b> " + (Math.abs(variationTestedPeople) > 1 ? "<b>Persone Testate</b>\n" : "<b>Persona Testata</b>\n") : "") +
                 "\n<b>" + StringConfig.formatNumber(totalCases) + "</b> Casi totali da inizio pandemia\n" +
                 "<b>" + StringConfig.formatNumber(totalPositive) + "</b> Totale positivi\n" +
                 "<b>" + StringConfig.formatNumber(totalRecovered) + "</b> Totale guariti\n" +

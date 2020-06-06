@@ -2,6 +2,7 @@ import net.ddns.andrewnetwork.MainEntry;
 import net.ddns.andrewnetwork.helpers.ApiHelper;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
+import net.ddns.andrewnetwork.helpers.util.StringConfig;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigSavedDataBuilder;
 import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
@@ -11,11 +12,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.util.StringUtils;
 
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class DataGetTest {
@@ -208,6 +207,31 @@ public class DataGetTest {
         covidRegionDataCollection.add(covidRegionData2);
 
         assert !MainEntry.onDataLoaded(today, covidRegionDataCollection);
+    }
 
+    @Test
+    public void testSingulars() {
+        CovidItaData covidItaData = new CovidItaData();
+
+        covidItaData.setDate(Calendar.getInstance().getTime());
+
+        covidItaData.setDeaths(1000);
+        covidItaData.setVariationDeaths(1);
+
+        covidItaData.setNewPositives(1);
+        covidItaData.setVariationPositive(-1);
+
+        String message = covidItaData.toString();
+
+        assert message.contains("Morto");
+        assert message.contains("Nuovo Caso");
+        assert message.contains("Caso Positivo");
+
+        covidItaData.setVariationPositive(-2);
+
+        message = covidItaData.toString();
+
+        assert !message.contains("Caso Positivo");
+        assert message.contains("Casi Positivi");
     }
 }
