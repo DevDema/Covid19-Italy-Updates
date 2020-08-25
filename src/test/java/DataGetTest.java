@@ -2,17 +2,17 @@ import net.ddns.andrewnetwork.MainEntry;
 import net.ddns.andrewnetwork.helpers.ApiHelper;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
-import net.ddns.andrewnetwork.helpers.util.StringConfig;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigSavedDataBuilder;
 import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
+import net.ddns.andrewnetwork.model.ConfigData;
+import net.ddns.andrewnetwork.model.ConfigSavedData;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.util.StringUtils;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -119,6 +119,57 @@ public class DataGetTest {
         assert today.getVariationTestedPeople() == 22999;
         assert today.getVariationTests() == 37631;
         assert today.getVariationQuarantined() == 242;
+    }
+
+    @Test
+    public void getYesterdayTestOnEditedText() throws CloneNotSupportedException {
+        CovidItaData todayBefore = yesterday.clone();
+
+        Calendar todayCalendar = Calendar.getInstance();
+
+        todayCalendar.set(Calendar.DAY_OF_MONTH, 4);
+        todayCalendar.set(Calendar.MONTH, Calendar.MAY);
+        todayCalendar.set(Calendar.YEAR, 2020);
+        todayCalendar.set(Calendar.HOUR_OF_DAY, 17);
+
+        todayBefore.setDate(todayCalendar.getTime());
+        todayBefore.setQuarantined(80000);
+
+        ConfigSavedData configSavedData1 = new ConfigSavedData();
+        configSavedData1.setDate(yesterday.getDate());
+        configSavedData1.setItalyDataSaved(yesterday);
+        configSavedData1.setRegionsDataSaved(new HashSet<>());
+
+        ConfigSavedData configSavedData2 = new ConfigSavedData();
+        configSavedData2.setDate(todayBefore.getDate());
+        configSavedData2.setItalyDataSaved(todayBefore);
+        configSavedData2.setRegionsDataSaved(new HashSet<>());
+
+        Collection<ConfigSavedData> collection = new ArrayList<ConfigSavedData>() {{
+            add(configSavedData1);
+            add(configSavedData2);
+        }};
+
+        todayCalendar = Calendar.getInstance();
+
+        todayCalendar.set(Calendar.DAY_OF_MONTH, 4);
+        todayCalendar.set(Calendar.MONTH, Calendar.MAY);
+        todayCalendar.set(Calendar.YEAR, 2020);
+        todayCalendar.set(Calendar.HOUR_OF_DAY, 19);
+
+        today.setDate(todayCalendar.getTime());
+        today.setQuarantined(80650);
+
+        Calendar yesterdayCalendar = DateUtil.toCalendar(today.getDate());
+        yesterdayCalendar.add(Calendar.DAY_OF_MONTH, -1);
+
+        ConfigData configData = new ConfigData(); //should never be done. Only for testing purposes.
+
+        configData.setLastDays(collection);
+        configData.setChannelID(42000); //dummy value
+        configData.setMessageID(-203934); //another dummy
+
+        assert configData.getDayBy(yesterdayCalendar.getTime()).getItalyDataSaved().getQuarantined() == 81436;
     }
 
     @Test

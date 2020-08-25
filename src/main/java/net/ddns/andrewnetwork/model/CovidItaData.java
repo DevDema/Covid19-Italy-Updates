@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-public class CovidItaData implements Serializable {
+public class CovidItaData implements Serializable, Cloneable {
 
     @SerializedName("data")
     protected Date date;
@@ -280,5 +280,10 @@ public class CovidItaData implements Serializable {
                 "<b>" + StringConfig.formatNumber(intensiveCare) + "</b> in Terapia Intensiva\n" +
                 "<b>" + StringConfig.formatNumber(tests) + "</b> Tamponi eseguiti\n" +
                 "<b>" + StringConfig.formatNumber(testedPeople) + "</b> Persone testate\n";
+    }
+
+    @Override
+    public CovidItaData clone() throws CloneNotSupportedException {
+        return (CovidItaData) super.clone();
     }
 }

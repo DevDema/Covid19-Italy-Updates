@@ -10,7 +10,7 @@ import com.pengrad.telegrambot.response.SendResponse;
 
 public class TelegramHelper {
 
-    private static final String TELEGRAM_BOT_CODE = "1099984065:AAEndJQ-osGp_V3ype8raiHUJM44iOqto6Y";
+    private static final String TELEGRAM_BOT_CODE = "193548529:AAGRkp_3DcjKj-tntnPz1WrraOIA_niOMfc";
     private static long TELEGRAM_CHANNEL_ID;
     private static final TelegramBot bot = new TelegramBot(TELEGRAM_BOT_CODE);
 

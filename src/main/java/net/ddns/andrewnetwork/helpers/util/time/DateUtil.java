@@ -36,15 +36,20 @@ public class DateUtil {
     }
 
     public static boolean isSameDay(Date date1, Date date2) {
-        if(date1 == null && date2 == null) {
+        if (date1 == null && date2 == null) {
             return true;
         }
 
-        if(date1 == null || date2 == null) {
+        if (date1 == null || date2 == null) {
             return false;
         }
 
-        return date1.getTime() == date2.getTime();
+        Date date1cloned = (Date) date1.clone();
+        Date date2cloned = (Date) date2.clone();
+        date1cloned = DateUtil.setMidnight(date1cloned);
+        date2cloned = DateUtil.setMidnight(date2cloned);
+
+        return date1cloned.getTime() == date2cloned.getTime();
     }
 
     public static boolean isSameDay(Calendar date1, Calendar date2) {

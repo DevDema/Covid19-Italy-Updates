@@ -2,8 +2,11 @@ package net.ddns.andrewnetwork.model;
 
 import com.google.gson.annotations.SerializedName;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
+import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 
 public class ConfigData {
 
@@ -38,9 +41,20 @@ public class ConfigData {
     public void setLastDays(Collection<ConfigSavedData> lastDays) {
         this.lastDays = lastDays;
     }
+
     public ConfigSavedData getLastDay() {
         Collection<ConfigSavedData> lastDays = getLastDays();
 
         return CovidDataUtils.getMostRecentDate(lastDays);
+    }
+
+    public ConfigSavedData getDayBy(Date date) {
+        Collection<ConfigSavedData> lastDays = getLastDays();
+
+        return lastDays
+                .stream()
+                .filter(configSavedData -> configSavedData.getDate() != null && DateUtil.isSameDay(configSavedData.getDate(), date))
+                .findFirst()
+                .orElse(null);
     }
 }
