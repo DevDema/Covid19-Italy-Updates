@@ -19,6 +19,14 @@ public class CovidRegionData extends CovidItaData {
         return regionLabel;
     }
 
+    public void setRegionCode(int regionCode) {
+        this.regionCode = regionCode;
+    }
+
+    public void setRegionLabel(String regionLabel) {
+        this.regionLabel = regionLabel;
+    }
+
     @Override
     protected String getTitleString() {
         return regionLabel.toUpperCase();

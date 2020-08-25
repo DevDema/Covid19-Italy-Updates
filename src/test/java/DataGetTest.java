@@ -2,6 +2,7 @@ import net.ddns.andrewnetwork.MainEntry;
 import net.ddns.andrewnetwork.helpers.ApiHelper;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
+import net.ddns.andrewnetwork.helpers.util.StringConfig;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigSavedDataBuilder;
 import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
@@ -119,6 +120,64 @@ public class DataGetTest {
         assert today.getVariationTestedPeople() == 22999;
         assert today.getVariationTests() == 37631;
         assert today.getVariationQuarantined() == 242;
+    }
+
+    @Test
+    public void invalidNegativeData() {
+        today.setDeaths(27000); //TESTED VALUE
+
+        CovidDataUtils.computeVariations(today, yesterday);
+
+        String finalMessage = StringConfig.buildFinalMessage(today.getDate(), today, new HashSet<>());
+
+        assert finalMessage.contains("Possibile rimodulazione dati da parte del Ministero.");
+    }
+
+    @Test
+    public void invalidNegativeDataOnRegions() {
+        CovidRegionData covidRegionDataToday = new CovidRegionData();
+        CovidRegionData covidRegionDataYesterday = new CovidRegionData();
+
+        covidRegionDataToday.setRegionCode(0);
+        covidRegionDataToday.setRegionLabel("Lombardia");
+        covidRegionDataToday.setDate(today.getDate());
+        covidRegionDataToday.setTotalCases(211938);
+        covidRegionDataToday.setDeaths(27000); //TESTED VALUE
+        covidRegionDataToday.setTotalRecovered(82879);
+        covidRegionDataToday.setTotalPositive(99980);
+        covidRegionDataToday.setQuarantined(81678);
+        covidRegionDataToday.setIntensiveCare(1479);
+        covidRegionDataToday.setHospitalized(18302);
+        covidRegionDataToday.setTestedPeople(1479910);
+        covidRegionDataToday.setTests(2191403);
+        covidRegionDataToday.setVariationPositive(-199);
+
+        covidRegionDataYesterday.setRegionCode(0);
+        covidRegionDataYesterday.setRegionLabel("Lombardia");
+        covidRegionDataYesterday.setDate(yesterday.getDate());
+        covidRegionDataYesterday.setTotalCases(210717);
+        covidRegionDataYesterday.setDeaths(28884); //TESTED VALUE
+        covidRegionDataYesterday.setTotalRecovered(81654);
+        covidRegionDataYesterday.setTotalPositive(100179);
+        covidRegionDataYesterday.setQuarantined(81436);
+        covidRegionDataYesterday.setIntensiveCare(1501);
+        covidRegionDataYesterday.setHospitalized(18743);
+        covidRegionDataYesterday.setTestedPeople(1456911);
+        covidRegionDataYesterday.setTests(2153772);
+
+        List<CovidRegionData> covidRegionTodayList = new ArrayList<CovidRegionData>() {{
+            add(covidRegionDataToday);
+        }};
+
+        List<CovidRegionData> covidRegionYesterdayList = new ArrayList<CovidRegionData>() {{
+            add(covidRegionDataYesterday);
+        }};
+
+        CovidDataUtils.computeVariationsList(covidRegionTodayList, covidRegionYesterdayList);
+
+        String finalMessage = StringConfig.buildFinalMessage(today.getDate(), today, covidRegionTodayList);
+
+        assert finalMessage.contains("Possibile rimodulazione dati da parte del Ministero.");
     }
 
     @Test

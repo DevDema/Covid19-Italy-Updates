@@ -6,7 +6,6 @@ import net.ddns.andrewnetwork.model.CovidRegionData;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class CovidDataUtils {
 
@@ -75,5 +74,9 @@ public final class CovidDataUtils {
                 .filter(configSavedData -> configSavedData.getDate() != null)
                 .max(Comparator.comparing(ConfigSavedData::getDate))
                 .orElse(null);
+    }
+
+    public static boolean areImpossibleDataNegative(CovidItaData covidItaData) {
+        return covidItaData.getVariationTests() < 0 || covidItaData.getVariationTestedPeople() < 0 || covidItaData.getVariationTotalCases() < 0 || covidItaData.getVariationDeaths() < 0;
     }
 }

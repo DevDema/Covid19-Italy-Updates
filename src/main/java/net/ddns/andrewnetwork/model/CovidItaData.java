@@ -2,6 +2,7 @@ package net.ddns.andrewnetwork.model;
 
 import com.google.gson.annotations.SerializedName;
 import net.ddns.andrewnetwork.helpers.util.StringConfig;
+import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -249,7 +250,7 @@ public class CovidItaData implements Serializable, Cloneable {
                 totalCases == that.totalCases &&
                 tests == that.tests &&
                 testedPeople == that.testedPeople &&
-                date.getTime() == that.getDate().getTime() &&
+                DateUtil.isSameDay(date, that.getDate()) &&
                 Objects.equals(countryCode, that.countryCode);
     }
 

@@ -29,9 +29,13 @@ public final class StringConfig {
 
         StringBuilder finalSB = new StringBuilder("<b>[AGGIORNAMENTO GIORNALIERO " + getAlertEmoji() + "]</b>\nAggiornamento situazione Covid-19 del " + dateString + ":");
 
+        if (CovidDataUtils.areImpossibleDataNegative(italyData) || regionDataList.stream().anyMatch(CovidDataUtils::areImpossibleDataNegative)) {
+            finalSB.append("\n\n<b>Alcuni dati risultano negativi. Possibile rimodulazione dati da parte del Ministero.</b>");
+        }
+
         finalSB.append(italyData);
 
-        for(CovidRegionData datum : regionDataList) {
+        for (CovidRegionData datum : regionDataList) {
             finalSB.append(datum);
         }
 
