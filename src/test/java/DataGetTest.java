@@ -1,6 +1,7 @@
 import net.ddns.andrewnetwork.MainEntry;
 import net.ddns.andrewnetwork.helpers.ApiHelper;
 import net.ddns.andrewnetwork.helpers.TelegramHelper;
+import net.ddns.andrewnetwork.helpers.async.AsyncCall;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
 import net.ddns.andrewnetwork.helpers.util.StringConfig;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
@@ -23,6 +24,8 @@ public class DataGetTest {
     private final ApiHelper apiHelper = new ApiHelper();
     private static final CovidItaData today = new CovidItaData();
     private static final CovidItaData yesterday = new CovidItaData();
+    private static final CovidRegionData todayRegionLombardia = new CovidRegionData();
+    private static CovidRegionData todayRegionPuglia = new CovidRegionData();
     private static final long channelId = -1001446903259L;
     private static final Set<Long> messagesToBeDeleted = new HashSet<>();
 
@@ -35,7 +38,7 @@ public class DataGetTest {
     public static void setupAfter() {
         ConfigDataBuilder.clear();
 
-        for(long message : messagesToBeDeleted) {
+        for (long message : messagesToBeDeleted) {
             TelegramHelper.deleteMessage(message);
         }
     }
@@ -82,13 +85,37 @@ public class DataGetTest {
         yesterday.setHospitalized(18743);
         yesterday.setTestedPeople(1456911);
         yesterday.setTests(2153772);
+
+        todayRegionPuglia.setDate(todayCalendar.getTime());
+        todayRegionPuglia.setTotalCases(210717); //3 MAY 2020 PUGLIA
+        todayRegionPuglia.setDeaths(28884);
+        todayRegionPuglia.setTotalRecovered(81654);
+        todayRegionPuglia.setTotalPositive(100179);
+        todayRegionPuglia.setQuarantined(81436);
+        todayRegionPuglia.setIntensiveCare(1501);
+        todayRegionPuglia.setHospitalized(18743);
+        todayRegionPuglia.setTestedPeople(1456911);
+        todayRegionPuglia.setTests(2153772);
+        todayRegionPuglia.setRegionLabel("Puglia");
+
+        todayRegionLombardia.setDate(todayCalendar.getTime());
+        todayRegionLombardia.setTotalCases(210717); //3 MAY 2020 LOMBARDIA
+        todayRegionLombardia.setDeaths(28884);
+        todayRegionLombardia.setTotalRecovered(81654);
+        todayRegionLombardia.setTotalPositive(100179);
+        todayRegionLombardia.setQuarantined(81436);
+        todayRegionLombardia.setIntensiveCare(1501);
+        todayRegionLombardia.setHospitalized(18743);
+        todayRegionLombardia.setTestedPeople(1456911);
+        todayRegionLombardia.setTests(2153772);
+        todayRegionLombardia.setRegionLabel("Lombardia");
     }
 
     @Test
     public void getItalyData() {
         CovidItaData itaData = apiHelper.getItalyData();
 
-        if(itaData != null) {
+        if (itaData != null) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Data: \n" + itaData.toString());
         }
 
@@ -100,7 +127,7 @@ public class DataGetTest {
         List<CovidRegionData> regionsData = apiHelper.getRegionsData();
         Set<CovidRegionData> newData = CovidDataUtils.getRegionByLabel(regionsData, "Lombardia", "Puglia");
 
-        if(newData != null) {
+        if (newData != null) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Data: \n" + newData.toString());
         }
 
@@ -258,6 +285,61 @@ public class DataGetTest {
 
         assert messageId == ConfigDataBuilder.getConfigData().getMessageID();
         assert ConfigDataBuilder.getConfigData().getLastDay() != null && ConfigDataBuilder.getConfigData().getLastDay().getItalyDataSaved().getQuarantined() == 80650;
+
+        messagesToBeDeleted.add(messageId);
+    }
+
+    @Test
+    public void updateDataOnTheSameDay() {
+        ConfigDataBuilder.clear();
+        ConfigDataBuilder.getInstance()
+                .getData()
+                .putDays(ConfigSavedDataBuilder.getInstance()
+                        .getLastData()
+                        .putTodayData(yesterday, new HashSet<>())
+                        .build()
+                )
+                .putChannelId(channelId)
+                .commit();
+        Calendar newTodayCalendar = Calendar.getInstance();
+        newTodayCalendar.setTime(today.getDate());
+        newTodayCalendar.set(Calendar.HOUR_OF_DAY, 19);
+        Date newToday = newTodayCalendar.getTime();
+
+        Set<CovidRegionData> yesterdayCovidRegionDataSet = new HashSet<CovidRegionData>() {{
+            add(todayRegionLombardia);
+            add(todayRegionPuglia);
+        }};
+
+        assert MainEntry.onDataLoaded(today, yesterdayCovidRegionDataSet);
+
+        long messageId = ConfigDataBuilder.getConfigData().getMessageID();
+        assert messageId != 0;
+
+        CovidItaData covidItaData = AsyncCall.getItalyData().map(covidItaData1 -> {
+            covidItaData1.setDate(newToday);
+            return covidItaData1;
+        }).toBlocking().value();
+
+        assert covidItaData.getVariationDeaths() != 0;
+        assert MainEntry.onDataLoaded(covidItaData, new HashSet<>());
+        assert messageId == ConfigDataBuilder.getConfigData().getMessageID();
+
+        messagesToBeDeleted.add(messageId);
+
+        String[] regions = new String[]{"Lombardia", "Puglia"};
+        Set<CovidRegionData> covidRegionDataSet = AsyncCall.getRegionsData(regions).map(covidRegionData -> {
+            covidRegionData.forEach(covidRegionData1 -> covidRegionData1.setDate(newToday));
+
+            CovidDataUtils.computeVariationsList(covidRegionData, yesterdayCovidRegionDataSet);
+            return covidRegionData;
+        }).toBlocking().value();
+
+        covidRegionDataSet.forEach(covidRegionData -> {
+            assert covidRegionData.getVariationDeaths() != 0;
+        });
+        assert MainEntry.onDataLoaded(covidItaData, covidRegionDataSet);
+        assert messageId == ConfigDataBuilder.getConfigData().getMessageID();
 
         messagesToBeDeleted.add(messageId);
     }

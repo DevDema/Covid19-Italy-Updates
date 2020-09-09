@@ -57,11 +57,17 @@ public class DateUtil {
     }
 
     public static boolean isTomorrowDay(Date date1, Date date2) {
-        if(date2 == null || date1 == null) {
+        if (date2 == null || date1 == null) {
             throw new IllegalArgumentException("Date1 or Date2 are null.");
         }
 
-        return Math.abs(date1.getTime() - date2.getTime()) == DATE_TIME_24;
+        Date dateCloned1 = (Date) date1.clone();
+        Date dateCloned2 = (Date) date2.clone();
+
+        dateCloned1 = DateUtil.setMidnight(dateCloned1);
+        dateCloned2 = DateUtil.setMidnight(dateCloned2);
+
+        return Math.abs(dateCloned1.getTime() - dateCloned2.getTime()) == DATE_TIME_24;
     }
 
     public static boolean isTomorrowDay(Calendar date1, Calendar date2) {
