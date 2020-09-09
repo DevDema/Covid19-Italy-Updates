@@ -25,7 +25,7 @@ public class DataGetTest {
     private static final CovidItaData today = new CovidItaData();
     private static final CovidItaData yesterday = new CovidItaData();
     private static final CovidRegionData todayRegionLombardia = new CovidRegionData();
-    private static CovidRegionData todayRegionPuglia = new CovidRegionData();
+    private static final CovidRegionData todayRegionPuglia = new CovidRegionData();
     private static final long channelId = -1001446903259L;
     private static final Set<Long> messagesToBeDeleted = new HashSet<>();
 
@@ -340,6 +340,9 @@ public class DataGetTest {
         });
         assert MainEntry.onDataLoaded(covidItaData, covidRegionDataSet);
         assert messageId == ConfigDataBuilder.getConfigData().getMessageID();
+
+        //assert that you store just one data for each day
+        assert ConfigDataBuilder.getConfigData().getLastDays().stream().filter(configSavedData -> DateUtil.isSameDay(configSavedData.getDate(), newToday)).count() == 1;
 
         messagesToBeDeleted.add(messageId);
     }
