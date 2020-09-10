@@ -5,12 +5,13 @@ import net.ddns.andrewnetwork.helpers.async.AsyncCall;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
 import net.ddns.andrewnetwork.helpers.util.StringConfig;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
-import net.ddns.andrewnetwork.helpers.util.builder.ConfigSavedDataBuilder;
+import net.ddns.andrewnetwork.helpers.util.builder.SavedDataBuilder;
+import net.ddns.andrewnetwork.helpers.util.builder.SavedDataDayBuilder;
 import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
-import net.ddns.andrewnetwork.model.ConfigData;
-import net.ddns.andrewnetwork.model.ConfigSavedData;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
+import net.ddns.andrewnetwork.model.SavedData;
+import net.ddns.andrewnetwork.model.SavedDataDay;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,14 +30,9 @@ public class DataGetTest {
     private static final long channelId = -1001446903259L;
     private static final Set<Long> messagesToBeDeleted = new HashSet<>();
 
-    @BeforeEach
-    public void setupEach() {
-        ConfigDataBuilder.clear();
-    }
-
     @AfterAll
     public static void setupAfter() {
-        ConfigDataBuilder.clear();
+        SavedDataBuilder.clear();
 
         for (long message : messagesToBeDeleted) {
             TelegramHelper.deleteMessage(message);
@@ -45,7 +41,12 @@ public class DataGetTest {
 
     @BeforeAll
     public static void setup() {
-        TelegramHelper.setChannelId(channelId);
+        SavedDataBuilder.setSavedDataPath("saved-data-test.json");
+        ConfigDataBuilder.setConfigPath("config-test.json");
+
+        ConfigDataBuilder.getInstance()
+                .putChannelId(channelId)
+                .commit();
 
         Calendar todayCalendar = Calendar.getInstance();
         Calendar yesterdayCalendar = Calendar.getInstance();
@@ -109,6 +110,13 @@ public class DataGetTest {
         todayRegionLombardia.setTestedPeople(1456911);
         todayRegionLombardia.setTests(2153772);
         todayRegionLombardia.setRegionLabel("Lombardia");
+    }
+
+    @BeforeEach
+    public void setupEach() {
+        SavedDataBuilder.clear();
+        ConfigDataBuilder.clearTemporaryData();
+
     }
 
     @Test
@@ -221,19 +229,19 @@ public class DataGetTest {
         todayBefore.setDate(todayCalendar.getTime());
         todayBefore.setQuarantined(80000);
 
-        ConfigSavedData configSavedData1 = new ConfigSavedData();
-        configSavedData1.setDate(yesterday.getDate());
-        configSavedData1.setItalyDataSaved(yesterday);
-        configSavedData1.setRegionsDataSaved(new HashSet<>());
+        SavedDataDay savedDataDay1 = new SavedDataDay();
+        savedDataDay1.setDate(yesterday.getDate());
+        savedDataDay1.setItalyDataSaved(yesterday);
+        savedDataDay1.setRegionsDataSaved(new HashSet<>());
 
-        ConfigSavedData configSavedData2 = new ConfigSavedData();
-        configSavedData2.setDate(todayBefore.getDate());
-        configSavedData2.setItalyDataSaved(todayBefore);
-        configSavedData2.setRegionsDataSaved(new HashSet<>());
+        SavedDataDay savedDataDay2 = new SavedDataDay();
+        savedDataDay2.setDate(todayBefore.getDate());
+        savedDataDay2.setItalyDataSaved(todayBefore);
+        savedDataDay2.setRegionsDataSaved(new HashSet<>());
 
-        Collection<ConfigSavedData> collection = new ArrayList<ConfigSavedData>() {{
-            add(configSavedData1);
-            add(configSavedData2);
+        Collection<SavedDataDay> collection = new ArrayList<SavedDataDay>() {{
+            add(savedDataDay1);
+            add(savedDataDay2);
         }};
 
         todayCalendar = Calendar.getInstance();
@@ -249,31 +257,28 @@ public class DataGetTest {
         Calendar yesterdayCalendar = DateUtil.toCalendar(today.getDate());
         yesterdayCalendar.add(Calendar.DAY_OF_MONTH, -1);
 
-        ConfigData configData = new ConfigData(); //should never be done. Only for testing purposes.
+        SavedData savedData = new SavedData(); //should never be done. Only for testing purposes.
 
-        configData.setLastDays(collection);
-        configData.setChannelID(42000); //dummy value
-        configData.setMessageID(-203934); //another dummy
+        savedData.setLastDays(collection);
 
-        assert configData.getDayBy(yesterdayCalendar.getTime()).getItalyDataSaved().getQuarantined() == 81436;
+        assert savedData.getDayBy(yesterdayCalendar.getTime()).getItalyDataSaved().getQuarantined() == 81436;
     }
 
     @Test
     public void editedMessageTest() {
-        ConfigDataBuilder.clear();
-        ConfigDataBuilder.getInstance()
+        SavedDataBuilder.clear();
+        SavedDataBuilder.getInstance()
                 .getData()
-                .putDays(ConfigSavedDataBuilder.getInstance()
+                .putDays(SavedDataDayBuilder.getInstance()
                         .getLastData()
                         .putTodayData(yesterday, new HashSet<>())
                         .build()
                 )
-                .putChannelId(channelId)
                 .commit();
 
         assert MainEntry.onDataLoaded(today, new HashSet<>());
 
-        long messageId = ConfigDataBuilder.getConfigData().getMessageID();
+        long messageId = ConfigDataBuilder.getMessageId();
 
         assert messageId != 0;
 
@@ -283,23 +288,22 @@ public class DataGetTest {
 
         assert MainEntry.onDataLoaded(today, new HashSet<>());
 
-        assert messageId == ConfigDataBuilder.getConfigData().getMessageID();
-        assert ConfigDataBuilder.getConfigData().getLastDay() != null && ConfigDataBuilder.getConfigData().getLastDay().getItalyDataSaved().getQuarantined() == 80650;
+        assert messageId == ConfigDataBuilder.getMessageId();
+        assert SavedDataBuilder.getSavedData().getLastDay() != null && SavedDataBuilder.getSavedData().getLastDay().getItalyDataSaved().getQuarantined() == 80650;
 
         messagesToBeDeleted.add(messageId);
     }
 
     @Test
     public void updateDataOnTheSameDay() {
-        ConfigDataBuilder.clear();
-        ConfigDataBuilder.getInstance()
+        SavedDataBuilder.clear();
+        SavedDataBuilder.getInstance()
                 .getData()
-                .putDays(ConfigSavedDataBuilder.getInstance()
+                .putDays(SavedDataDayBuilder.getInstance()
                         .getLastData()
                         .putTodayData(yesterday, new HashSet<>())
                         .build()
                 )
-                .putChannelId(channelId)
                 .commit();
         Calendar newTodayCalendar = Calendar.getInstance();
         newTodayCalendar.setTime(today.getDate());
@@ -313,7 +317,7 @@ public class DataGetTest {
 
         assert MainEntry.onDataLoaded(today, yesterdayCovidRegionDataSet);
 
-        long messageId = ConfigDataBuilder.getConfigData().getMessageID();
+        long messageId = ConfigDataBuilder.getMessageId();
         assert messageId != 0;
 
         CovidItaData covidItaData = AsyncCall.getItalyData().map(covidItaData1 -> {
@@ -323,7 +327,7 @@ public class DataGetTest {
 
         assert covidItaData.getVariationDeaths() != 0;
         assert MainEntry.onDataLoaded(covidItaData, new HashSet<>());
-        assert messageId == ConfigDataBuilder.getConfigData().getMessageID();
+        assert messageId == ConfigDataBuilder.getMessageId();
 
         messagesToBeDeleted.add(messageId);
 
@@ -339,10 +343,10 @@ public class DataGetTest {
             assert covidRegionData.getVariationDeaths() != 0;
         });
         assert MainEntry.onDataLoaded(covidItaData, covidRegionDataSet);
-        assert messageId == ConfigDataBuilder.getConfigData().getMessageID();
+        assert messageId == ConfigDataBuilder.getMessageId();
 
         //assert that you store just one data for each day
-        assert ConfigDataBuilder.getConfigData().getLastDays().stream().filter(configSavedData -> DateUtil.isSameDay(configSavedData.getDate(), newToday)).count() == 1;
+        assert SavedDataBuilder.getSavedData().getLastDays().stream().filter(configSavedData -> DateUtil.isSameDay(configSavedData.getDate(), newToday)).count() == 1;
 
         messagesToBeDeleted.add(messageId);
     }
@@ -359,26 +363,25 @@ public class DataGetTest {
         CovidItaData tomorrow = new CovidItaData();
         tomorrow.setDate(tomorrowCalendar.getTime());
 
-        ConfigDataBuilder.clear();
-        ConfigDataBuilder.getInstance()
+        SavedDataBuilder.clear();
+        SavedDataBuilder.getInstance()
                 .getData()
-                .putDays(ConfigSavedDataBuilder.getInstance()
+                .putDays(SavedDataDayBuilder.getInstance()
                         .getLastData()
                         .putTodayData(yesterday, new HashSet<>())
                         .build()
                 )
-                .putChannelId(channelId)
                 .commit();
 
         assert MainEntry.onDataLoaded(today, new HashSet<>());
 
-        long messageId = ConfigDataBuilder.getConfigData().getMessageID();
+        long messageId = ConfigDataBuilder.getMessageId();
 
         assert messageId != 0;
 
         assert MainEntry.onDataLoaded(tomorrow, new HashSet<>());
 
-        long messageIdNew = ConfigDataBuilder.getConfigData().getMessageID();
+        long messageIdNew = ConfigDataBuilder.getMessageId();
 
         assert messageId != messageIdNew;
 

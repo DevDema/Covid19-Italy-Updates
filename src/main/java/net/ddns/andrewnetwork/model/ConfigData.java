@@ -1,22 +1,25 @@
 package net.ddns.andrewnetwork.model;
 
 import com.google.gson.annotations.SerializedName;
-import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
-import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 
 public class ConfigData {
 
-
     @SerializedName("channel_id")
     private long channelID;
-    @SerializedName("last_message_id")
-    private long messageID;
-    @SerializedName("last_days")
-    private Collection<ConfigSavedData> lastDays = new ArrayList<>();
+    @SerializedName("country")
+    private String country;
+    @SerializedName("daemon_mode")
+    private boolean daemonMode;
+    @SerializedName("debug_mode")
+    private boolean debugMode;
+    @SerializedName("regions")
+    private String[] regions;
+    @SerializedName("language")
+    private String language;
+    @SerializedName("cycling_interval")
+    private int timeInterval;
+    @SerializedName("temporary_data")
+    private TemporaryConfigData temporaryConfigData;
 
     public long getChannelID() {
         return channelID;
@@ -26,35 +29,59 @@ public class ConfigData {
         this.channelID = channelID;
     }
 
-    public long getMessageID() {
-        return messageID;
+    public boolean isDaemonMode() {
+        return daemonMode;
     }
 
-    public void setMessageID(long messageID) {
-        this.messageID = messageID;
+    public void setDaemonMode(boolean daemonMode) {
+        this.daemonMode = daemonMode;
     }
 
-    public Collection<ConfigSavedData> getLastDays() {
-        return lastDays;
+    public boolean isDebugMode() {
+        return debugMode;
     }
 
-    public void setLastDays(Collection<ConfigSavedData> lastDays) {
-        this.lastDays = lastDays;
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
     }
 
-    public ConfigSavedData getLastDay() {
-        Collection<ConfigSavedData> lastDays = getLastDays();
-
-        return CovidDataUtils.getMostRecentDate(lastDays);
+    public String[] getRegions() {
+        return regions;
     }
 
-    public ConfigSavedData getDayBy(Date date) {
-        Collection<ConfigSavedData> lastDays = getLastDays();
+    public void setRegions(String[] regions) {
+        this.regions = regions;
+    }
 
-        return lastDays
-                .stream()
-                .filter(configSavedData -> configSavedData.getDate() != null && DateUtil.isSameDay(configSavedData.getDate(), date))
-                .findFirst()
-                .orElse(null);
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public int getTimeInterval() {
+        return timeInterval;
+    }
+
+    public void setTimeInterval(int timeInterval) {
+        this.timeInterval = timeInterval;
+    }
+
+    public TemporaryConfigData getTemporaryData() {
+        return temporaryConfigData;
+    }
+
+    public void setTemporaryConfigData(TemporaryConfigData temporaryConfigData) {
+        this.temporaryConfigData = temporaryConfigData;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 }

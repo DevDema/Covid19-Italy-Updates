@@ -6,7 +6,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
-public class ConfigSavedData {
+public class SavedDataDay {
 
     @SerializedName("last_seen_date")
     private Date date;
@@ -15,7 +15,7 @@ public class ConfigSavedData {
     @SerializedName("regions_data_saved")
     private Collection<CovidRegionData> regionsDataSaved;
 
-    public ConfigSavedData() {
+    public SavedDataDay() {
         Date date = Calendar.getInstance().getTime();
         date.setTime(0L);
 

@@ -2,7 +2,7 @@ package net.ddns.andrewnetwork.helpers.async;
 
 import net.ddns.andrewnetwork.helpers.ApiHelper;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
-import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
+import net.ddns.andrewnetwork.helpers.util.builder.SavedDataBuilder;
 import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
@@ -18,7 +18,7 @@ public final class AsyncCall {
             CovidItaData newData = apiHelper.getItalyData();
 
             if(newData != null) {
-                CovidItaData savedData = ConfigDataBuilder.getConfigData() != null && ConfigDataBuilder.getConfigData().getLastDay() != null ? ConfigDataBuilder.getConfigData().getLastDay().getItalyDataSaved() : null;
+                CovidItaData savedData = SavedDataBuilder.getSavedData() != null && SavedDataBuilder.getSavedData().getLastDay() != null ? SavedDataBuilder.getSavedData().getLastDay().getItalyDataSaved() : null;
 
                 if (savedData == null) {
                     emitter.onSuccess(newData);
@@ -35,8 +35,8 @@ public final class AsyncCall {
                     yesterdayCalendar.add(Calendar.DAY_OF_MONTH, -1);
                     Date yesterday = yesterdayCalendar.getTime();
 
-                    savedData = ConfigDataBuilder.getConfigData() != null && ConfigDataBuilder.getConfigData().getDayBy(yesterday) != null ?
-                            ConfigDataBuilder.getConfigData().getDayBy(yesterday).getItalyDataSaved() : null;
+                    savedData = SavedDataBuilder.getSavedData() != null && SavedDataBuilder.getSavedData().getDayBy(yesterday) != null ?
+                            SavedDataBuilder.getSavedData().getDayBy(yesterday).getItalyDataSaved() : null;
                 }
 
                 CovidDataUtils.computeVariations(newData, savedData);
@@ -57,7 +57,8 @@ public final class AsyncCall {
 
             if (data != null && !data.isEmpty()) {
                 Set<CovidRegionData> newData = CovidDataUtils.getRegionByLabel(data, regions);
-                Collection<CovidRegionData> savedData = ConfigDataBuilder.getConfigData() != null && ConfigDataBuilder.getConfigData().getLastDay() != null ? ConfigDataBuilder.getConfigData().getLastDay().getRegionsDataSaved() : null;
+                Collection<CovidRegionData> savedData = SavedDataBuilder.getSavedData() != null && SavedDataBuilder.getSavedData().getLastDay() != null ?
+                        SavedDataBuilder.getSavedData().getLastDay().getRegionsDataSaved() : null;
 
                 if (savedData == null || savedData.isEmpty()) {
                     emitter.onSuccess(newData);
@@ -82,8 +83,8 @@ public final class AsyncCall {
                     yesterdayCalendar.add(Calendar.DAY_OF_MONTH, -1);
                     Date yesterday = yesterdayCalendar.getTime();
 
-                    savedData = ConfigDataBuilder.getConfigData() != null && ConfigDataBuilder.getConfigData().getDayBy(yesterday) != null ?
-                            ConfigDataBuilder.getConfigData().getDayBy(yesterday).getRegionsDataSaved() : null;
+                    savedData = SavedDataBuilder.getSavedData() != null && SavedDataBuilder.getSavedData().getDayBy(yesterday) != null ?
+                            SavedDataBuilder.getSavedData().getDayBy(yesterday).getRegionsDataSaved() : null;
                 }
 
                 CovidDataUtils.computeVariationsList(newData, savedData);

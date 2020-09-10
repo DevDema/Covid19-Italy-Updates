@@ -1,4 +1,6 @@
 import net.ddns.andrewnetwork.MainEntry;
+import net.ddns.andrewnetwork.helpers.util.builder.SavedDataBuilder;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.logging.Logger;
@@ -6,6 +8,11 @@ import java.util.logging.Logger;
 import static net.ddns.andrewnetwork.helpers.util.StringConfig.*;
 
 public class ArgumentTest {
+
+    @BeforeAll
+    public static void setup() {
+        SavedDataBuilder.setSavedDataPath("config-test.json");
+    }
 
     @Test
     public void setOneRegionArguments() {

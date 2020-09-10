@@ -1,12 +1,12 @@
 import net.ddns.andrewnetwork.helpers.ApiHelper;
 import net.ddns.andrewnetwork.helpers.util.CovidDataUtils;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
-import net.ddns.andrewnetwork.helpers.util.builder.ConfigSavedDataBuilder;
-import net.ddns.andrewnetwork.model.ConfigData;
+import net.ddns.andrewnetwork.helpers.util.builder.SavedDataBuilder;
+import net.ddns.andrewnetwork.helpers.util.builder.SavedDataDayBuilder;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,16 +15,27 @@ import java.util.Set;
 
 public class CachingTest {
 
-    ApiHelper apiHelper = new ApiHelper();
+    private static final long channelId = -1001446903259L;
+    private final ApiHelper apiHelper = new ApiHelper();
 
-    @BeforeEach
-    public void setupEach() {
-        ConfigDataBuilder.clear();
+    @BeforeAll
+    public static void setup() {
+        SavedDataBuilder.setSavedDataPath("saved-data-test.json");
+        ConfigDataBuilder.setConfigPath("config-test.json");
+
+        ConfigDataBuilder.getInstance()
+                .putChannelId(channelId)
+                .commit();
     }
 
     @AfterAll
     public static void setupAfter() {
-        ConfigDataBuilder.clear();
+        SavedDataBuilder.clear();
+    }
+
+    @BeforeEach
+    public void setupEach() {
+        SavedDataBuilder.clear();
     }
 
     @Test
@@ -36,19 +47,19 @@ public class CachingTest {
 
         Set<CovidRegionData> newData = CovidDataUtils.getRegionByLabel(regionsData, "Lombardia", "Puglia");
 
-        ConfigDataBuilder.getInstance()
+        SavedDataBuilder.getInstance()
                 .getData()
-                .putDays(ConfigSavedDataBuilder.getInstance()
+                .putDays(SavedDataDayBuilder.getInstance()
                         .newData()
                         .putTodayData(itaData, newData)
                         .build())
                 .commit();
 
-        assert ConfigDataBuilder.getConfigData() != null;
-        assert ConfigDataBuilder.getConfigData().getLastDay().getDate() != null;
-        assert ConfigDataBuilder.getConfigData().getLastDay().getItalyDataSaved() != null;
-        assert ConfigDataBuilder.getConfigData().getLastDay().getRegionsDataSaved() != null &&
-                !ConfigDataBuilder.getConfigData().getLastDay().getRegionsDataSaved().isEmpty();
+        assert SavedDataBuilder.getSavedData() != null;
+        assert SavedDataBuilder.getSavedData().getLastDay().getDate() != null;
+        assert SavedDataBuilder.getSavedData().getLastDay().getItalyDataSaved() != null;
+        assert SavedDataBuilder.getSavedData().getLastDay().getRegionsDataSaved() != null &&
+                !SavedDataBuilder.getSavedData().getLastDay().getRegionsDataSaved().isEmpty();
     }
 
     @Test
@@ -60,6 +71,6 @@ public class CachingTest {
                 .putMessageId(messageId)
                 .commit();
 
-        assert ConfigDataBuilder.getConfigData().getMessageID() == messageId;
+        assert ConfigDataBuilder.getMessageId() == messageId;
     }
 }

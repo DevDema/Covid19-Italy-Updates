@@ -7,12 +7,13 @@ import net.ddns.andrewnetwork.helpers.TelegramHelper;
 import net.ddns.andrewnetwork.helpers.util.ListUtils;
 import net.ddns.andrewnetwork.helpers.util.StringConfig;
 import net.ddns.andrewnetwork.helpers.util.builder.ConfigDataBuilder;
-import net.ddns.andrewnetwork.helpers.util.builder.ConfigSavedDataBuilder;
+import net.ddns.andrewnetwork.helpers.util.builder.SavedDataBuilder;
+import net.ddns.andrewnetwork.helpers.util.builder.SavedDataDayBuilder;
 import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 import net.ddns.andrewnetwork.model.ConfigData;
-import net.ddns.andrewnetwork.model.ConfigSavedData;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
+import net.ddns.andrewnetwork.model.SavedDataDay;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -20,23 +21,20 @@ import java.util.stream.Collectors;
 
 public class MainEntry {
     private static long DELAY = 5 * 60 * 1000L; // 5 MINUTES
-    private static boolean DEBUG_MODE = false;
+    private static Boolean DEBUG_MODE;
+    private static Boolean DAEMON_MODE;
     private static final String OPTION_PATTERN = "-[a-z,A-Z]"; //pattern for specified option
     private static final MainPresenter MAIN_PRESENTER = new MainPresenter();
 
     private static String[] regionsData;
     private static String language;
-    private static boolean daemonMode = false;
+    private static String country;
 
 
     public static void main(String[] args) {
-        String requiredData = getRequiredData(args);
+        setupConfiguration(args);
 
-        getOptionalData(args);
-        ConfigData configData = ConfigDataBuilder.getConfigData();
-        TelegramHelper.setChannelId(configData.getChannelID());
-
-        if (daemonMode) {
+        if (DAEMON_MODE) {
             while (true) {
                 getData();
 
@@ -60,17 +58,17 @@ public class MainEntry {
     private static void getData() {
         if (DEBUG_MODE) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("getting Data... Last Update:" +
-                    (ConfigDataBuilder.getConfigData() != null && ConfigDataBuilder.getConfigData().getLastDay() != null ? ConfigDataBuilder.getConfigData().getLastDay().getDate() : "Never"));
+                    (SavedDataBuilder.getSavedData() != null && SavedDataBuilder.getSavedData().getLastDay() != null ? SavedDataBuilder.getSavedData().getLastDay().getDate() : "Never"));
         }
 
         MAIN_PRESENTER.getData(regionsData);
     }
 
     public static boolean onDataLoaded(CovidItaData covidItaData, Set<CovidRegionData> covidRegionData) {
-        ConfigSavedData configSavedData = ConfigDataBuilder.getConfigData().getLastDay();
-        CovidItaData covidItaSavedData = configSavedData != null ? configSavedData.getItalyDataSaved() : new CovidItaData();
-        Set<CovidRegionData> covidRegionDataSavedList = configSavedData != null
-                ? new HashSet<>(configSavedData.getRegionsDataSaved())
+        SavedDataDay savedDataDay = SavedDataBuilder.getSavedData().getLastDay();
+        CovidItaData covidItaSavedData = savedDataDay != null ? savedDataDay.getItalyDataSaved() : new CovidItaData();
+        Set<CovidRegionData> covidRegionDataSavedList = savedDataDay != null
+                ? new HashSet<>(savedDataDay.getRegionsDataSaved())
                 : new HashSet<>();
 
         Set<Date> newDates = covidRegionData.stream().map(CovidItaData::getDate).collect(Collectors.toSet());
@@ -83,8 +81,8 @@ public class MainEntry {
             return false;
         }
 
-        if (configSavedData == null || covidItaSavedData.getDate() == null ||
-                DateUtil.isTomorrowDay(covidItaData.getDate(), configSavedData.getDate())) {
+        if (savedDataDay == null || covidItaSavedData.getDate() == null ||
+                DateUtil.isTomorrowDay(covidItaData.getDate(), savedDataDay.getDate())) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("New data found! Date: " + DateUtil.max(newDates) + ". Updating...");
 
             sendNewMessage(covidItaData, covidRegionData);
@@ -103,7 +101,7 @@ public class MainEntry {
     }
 
     private static void editLastMessage(CovidItaData covidItaData, Collection<CovidRegionData> covidRegionData) {
-        long lastMessageId = ConfigDataBuilder.getConfigData().getMessageID();
+        long lastMessageId = ConfigDataBuilder.getConfigData().getTemporaryData().getMessageID();
 
         BaseResponse baseResponse = TelegramHelper.editMessage((int) lastMessageId, StringConfig.buildFinalMessage(covidItaData.getDate(), covidItaData, covidRegionData));
 
@@ -112,13 +110,17 @@ public class MainEntry {
             return;
         }
 
-        ConfigDataBuilder.getInstance()
+        SavedDataBuilder.getInstance()
                 .getData()
-                .putDays(ConfigSavedDataBuilder.getInstance()
+                .putDays(SavedDataDayBuilder.getInstance()
                         .getLastData()
                         .putTodayData(covidItaData, covidRegionData)
                         .build()
                 )
+                .commit();
+
+        ConfigDataBuilder.getInstance()
+                .getData()
                 .putMessageId(lastMessageId)
                 .commit();
     }
@@ -139,13 +141,17 @@ public class MainEntry {
             return;
         }
 
-        ConfigDataBuilder.getInstance()
+        SavedDataBuilder.getInstance()
                 .getData()
-                .putDays(ConfigSavedDataBuilder.getInstance()
+                .putDays(SavedDataDayBuilder.getInstance()
                         .newData()
                         .putTodayData(covidItaData, covidRegionData)
                         .build()
                 )
+                .commit();
+
+        ConfigDataBuilder.getInstance()
+                .getData()
                 .putMessageId(message.messageId())
                 .commit();
     }
@@ -164,7 +170,7 @@ public class MainEntry {
         return list;
     }
 
-    private static void getOptionalData(String[] args) {
+    private static void setupConfiguration(String[] args) {
         List<Integer> optionsIndex = getOptionPositions(args);
 
         for (int i = 0; i < optionsIndex.size() - 1; i++) {
@@ -172,6 +178,26 @@ public class MainEntry {
             String[] optionsData = ListUtils.getSubArray(args, optionsIndex.get(i) + 1, optionsIndex.get(i + 1));
 
             switch (option) {
+                case 'C':
+                    if (optionsData.length == 0) {
+                        throw new IllegalArgumentException(StringConfig.EXCEPTION_MISSING_ARGUMENTS + option);
+                    }
+
+                    if (optionsData.length > 1) {
+                        throw new IllegalArgumentException(StringConfig.EXCEPTION_MANY_ARGS_OPTION);
+                    }
+
+                    country = optionsData[0];
+
+                    if (country == null || country.isEmpty()) {
+                        throw new IllegalArgumentException(StringConfig.EXCEPTION_INVALID_COUNTRY);
+                    }
+
+                    if (!"ITALY".equals(country)) {
+                        throw new IllegalArgumentException(StringConfig.EXCEPTION_INVALID_COUNTRY);
+                    }
+
+                    break;
                 case 'r':
                     if (optionsData.length == 0) {
                         throw new IllegalArgumentException(StringConfig.EXCEPTION_MISSING_ARGUMENTS_OPTION + option);
@@ -226,7 +252,7 @@ public class MainEntry {
                         throw new IllegalArgumentException(String.format(StringConfig.EXCEPTION_MANY_ARGS_OPTION, option, 0));
                     }
 
-                    daemonMode = true;
+                    DAEMON_MODE = true;
                     break;
                 case 'c':
                     if (optionsData.length == 0) {
@@ -242,29 +268,59 @@ public class MainEntry {
                 default:
                     throw new IllegalArgumentException(StringConfig.EXCEPTION_UNRECOGNIZED + option);
             }
+
+            String configPath = ConfigDataBuilder.getConfigPath();
+            if (configPath == null || configPath.isEmpty()) {
+                throw new IllegalArgumentException("Missing config path.");
+            }
+
+            ConfigData configData = ConfigDataBuilder.getConfigData();
+
+            if (configData.getChannelID() == 0) {
+                throw new IllegalArgumentException("A channel Id must be provided");
+            }
+
+            if (DAEMON_MODE == null) {
+                DAEMON_MODE = configData.isDaemonMode();
+            }
+
+            if (DEBUG_MODE == null) {
+                DEBUG_MODE = configData.isDebugMode();
+            }
+
+            if (language == null || language.isEmpty()) {
+                language = configData.getLanguage();
+            }
+
+            if (country == null || country.isEmpty()) {
+                country = configData.getCountry();
+            }
+
+            if (regionsData == null || regionsData.length == 0) {
+                regionsData = configData.getRegions();
+            }
+
+            TelegramHelper.setChannelId(configData.getChannelID());
+        }
+
+        if (DAEMON_MODE == null) {
+            DAEMON_MODE = false;
+        }
+
+        if (DEBUG_MODE == null) {
+            DEBUG_MODE = false;
         }
 
         if (language == null) {
             language = "ITA";
         }
 
-        if (regionsData == null) {
-            regionsData = new String[]{"Lombardia"};
-        }
-    }
-
-    private static String getRequiredData(String[] args) {
-        if (args.length > 0) {
-            String country = args[0];
-
-            switch (country) {
-                case "ITALY":
-                    return country;
-                default:
-                    throw new IllegalArgumentException(StringConfig.EXCEPTION_INVALID_COUNTRY);
-            }
+        if (country == null || country.isEmpty()) {
+            throw new IllegalArgumentException("A Country must be provided.");
         }
 
-        throw new IllegalArgumentException(StringConfig.EXCEPTION_MISSING_ARGUMENTS);
+        if (regionsData == null || regionsData.length == 0) {
+            throw new IllegalArgumentException("Regions must be provided.");
+        }
     }
 }
