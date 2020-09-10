@@ -173,10 +173,17 @@ public class MainEntry {
     private static void setupConfiguration(String[] args) {
         List<Integer> optionsIndex = getOptionPositions(args);
 
+        if (args.length == 0) {
+            throw new IllegalArgumentException(StringConfig.EXCEPTION_MISSING_ARGUMENTS);
+        }
+
+        if (!(Arrays.stream(args).filter(arg -> arg.trim().equals("-c")).count() == 1) || !(Arrays.stream(args).filter(arg -> arg.trim().equals("-o")).count() == 1)) {
+            throw new IllegalArgumentException("Configuration and Data Output files are required.");
+        }
+
         for (int i = 0; i < optionsIndex.size() - 1; i++) {
             char option = args[optionsIndex.get(i)].charAt(1);
             String[] optionsData = ListUtils.getSubArray(args, optionsIndex.get(i) + 1, optionsIndex.get(i + 1));
-
             switch (option) {
                 case 'C':
                     if (optionsData.length == 0) {
@@ -265,8 +272,24 @@ public class MainEntry {
 
                     ConfigDataBuilder.setConfigPath(optionsData[0]);
                     break;
+                case 'o':
+                    if (optionsData.length == 0) {
+                        throw new IllegalArgumentException(StringConfig.EXCEPTION_MISSING_ARGUMENTS_OPTION + option);
+                    }
+
+                    if (optionsData.length > 1) {
+                        throw new IllegalArgumentException(String.format(StringConfig.EXCEPTION_MANY_ARGS_OPTION, option, 1));
+                    }
+
+                    SavedDataBuilder.setSavedDataPath(optionsData[0]);
+                    break;
                 default:
                     throw new IllegalArgumentException(StringConfig.EXCEPTION_UNRECOGNIZED + option);
+            }
+
+
+            if (!Arrays.stream(args).filter(arg -> arg.matches(OPTION_PATTERN)).allMatch(new HashSet<>()::add)) {
+                throw new IllegalArgumentException(StringConfig.EXCEPTION_DUPLICATE_OPTION);
             }
 
             String configPath = ConfigDataBuilder.getConfigPath();
@@ -316,11 +339,21 @@ public class MainEntry {
         }
 
         if (country == null || country.isEmpty()) {
-            throw new IllegalArgumentException("A Country must be provided.");
+            throw new IllegalArgumentException(StringConfig.EXCEPTION_INVALID_COUNTRY);
         }
 
         if (regionsData == null || regionsData.length == 0) {
             throw new IllegalArgumentException("Regions must be provided.");
         }
+    }
+
+    //used in tests to reset static context.
+    public static void reset() {
+        regionsData = null;
+        language = null;
+        country = null;
+        DEBUG_MODE = null;
+        DAEMON_MODE = null;
+        DELAY = 5 * 60 * 1000L; // 5 MINUTES
     }
 }

@@ -24,6 +24,7 @@ public class CachingTest {
         ConfigDataBuilder.setConfigPath("config-test.json");
 
         ConfigDataBuilder.getInstance()
+                .getData()
                 .putChannelId(channelId)
                 .commit();
     }

@@ -5,6 +5,7 @@ import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 
 public class SavedData {
 
@@ -12,6 +13,10 @@ public class SavedData {
 
     public Collection<SavedDataDay> getLastDays() {
         return lastDays;
+    }
+
+    public SavedData() {
+        lastDays = new HashSet<>();
     }
 
     public void setLastDays(Collection<SavedDataDay> lastDays) {

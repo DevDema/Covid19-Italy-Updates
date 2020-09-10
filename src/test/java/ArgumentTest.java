@@ -1,5 +1,6 @@
 import net.ddns.andrewnetwork.MainEntry;
 import net.ddns.andrewnetwork.helpers.util.builder.SavedDataBuilder;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -14,10 +15,16 @@ public class ArgumentTest {
         SavedDataBuilder.setSavedDataPath("config-test.json");
     }
 
+
+    @AfterEach
+    public void after() {
+        MainEntry.reset();
+    }
+
     @Test
     public void setOneRegionArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-l", "ITA", "-r", "Puglia"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-l", "ITA", "-r", "Puglia"};
 
             MainEntry.main(args);
             assert true;
@@ -30,7 +37,7 @@ public class ArgumentTest {
     @Test
     public void setMultipleRegionArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-l", "ITA", "-r", "Puglia", "Lombardia"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-l", "ITA", "-r", "Puglia", "Lombardia"};
 
             MainEntry.main(args);
             assert true;
@@ -44,7 +51,7 @@ public class ArgumentTest {
     @Test
     public void setMissingRequiredArguments() {
         try {
-            String[] args = new String[]{"-l", "ITA", "-r", "Puglia"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-l", "ITA", "-r", "Puglia"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -56,7 +63,7 @@ public class ArgumentTest {
     @Test
     public void setUnsupportedRequiredArguments() {
         try {
-            String[] args = new String[]{"UK", "-l", "ITA", "-r", "Puglia"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "UK", "-l", "ITA", "-r", "Puglia"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -80,7 +87,7 @@ public class ArgumentTest {
     @Test
     public void setMultipleLanguageArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-l", "ITA", "EN", "-r", "Puglia"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-l", "ITA", "EN", "-r", "Puglia"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -92,7 +99,7 @@ public class ArgumentTest {
     @Test
     public void setUnsupportedLanguageArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-l", "EN", "-r", "Puglia"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-l", "EN", "-r", "Puglia"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -104,7 +111,7 @@ public class ArgumentTest {
     @Test
     public void setMissingLanguageArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-l", "-r", "Puglia"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-l", "-r", "Puglia"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -116,7 +123,7 @@ public class ArgumentTest {
     @Test
     public void setMissingRegionArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-l", "ITA", "-r"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-l", "ITA", "-r"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -128,19 +135,19 @@ public class ArgumentTest {
     @Test
     public void setUnrecognizedArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-o"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-j"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(e.getMessage());
-            assert e.getMessage().equalsIgnoreCase(EXCEPTION_UNRECOGNIZED + 'o');
+            assert e.getMessage().equalsIgnoreCase(EXCEPTION_UNRECOGNIZED + 'j');
         }
     }
 
     @Test
     public void setUncorrectDelayArguments1() {
         try {
-            String[] args = new String[]{"ITALY", "-d", "60*30"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-d", "60*30"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -152,7 +159,7 @@ public class ArgumentTest {
     @Test
     public void setMissingDelayArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-d"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-d"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -164,7 +171,7 @@ public class ArgumentTest {
     @Test
     public void setUncorrectDelayArguments2() {
         try {
-            String[] args = new String[]{"ITALY", "-d", "test"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-d", "test"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -176,7 +183,7 @@ public class ArgumentTest {
     @Test
     public void setManyDelayArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-d", "60", "30"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-d", "60", "30"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -189,7 +196,7 @@ public class ArgumentTest {
     @Test
     public void setMissingConfigArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-c"};
+            String[] args = new String[]{"-c", "-o", "saved-data-test.json", "-C", "ITALY"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -201,7 +208,7 @@ public class ArgumentTest {
     @Test
     public void setManyDaemonArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-s", "test"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-s", "test"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -211,9 +218,21 @@ public class ArgumentTest {
     }
 
     @Test
+    public void setDuplicationOption() {
+        try {
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-s", "-s"};
+            MainEntry.main(args);
+            assert false;
+        } catch (Exception e) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info(e.getMessage());
+            assert e.getMessage().equalsIgnoreCase(EXCEPTION_DUPLICATE_OPTION);
+        }
+    }
+
+    @Test
     public void setManyConfigArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-c", "test", "test"};
+            String[] args = new String[]{"-c", "config.json", "another-config.json", "-o", "saved-data-test.json", "-C", "ITALY"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {
@@ -225,7 +244,7 @@ public class ArgumentTest {
     @Test
     public void setManyDebugArguments() {
         try {
-            String[] args = new String[]{"ITALY", "-D", "test"};
+            String[] args = new String[]{"-c", "config.json", "-o", "saved-data-test.json", "-C", "ITALY", "-D", "test"};
             MainEntry.main(args);
             assert false;
         } catch (Exception e) {

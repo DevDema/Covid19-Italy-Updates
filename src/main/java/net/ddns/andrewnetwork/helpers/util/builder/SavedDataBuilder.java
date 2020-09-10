@@ -29,8 +29,8 @@ public class SavedDataBuilder {
 
     public static SavedData getSavedData() {
         String fileAsString = getSavedDataString();
-
-        return JsonUtil.getGson().fromJson(fileAsString, SavedData.class);
+        SavedData savedData = JsonUtil.getGson().fromJson(fileAsString, SavedData.class);
+        return savedData != null ? savedData : new SavedData();
     }
 
     public static void setSavedDataPath(String savedDataPath) {

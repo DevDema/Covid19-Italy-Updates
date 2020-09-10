@@ -41,10 +41,13 @@ public class DataGetTest {
 
     @BeforeAll
     public static void setup() {
+        TelegramHelper.setChannelId(channelId);
+
         SavedDataBuilder.setSavedDataPath("saved-data-test.json");
         ConfigDataBuilder.setConfigPath("config-test.json");
-
+        ConfigDataBuilder.clear();
         ConfigDataBuilder.getInstance()
+                .getData()
                 .putChannelId(channelId)
                 .commit();
 
@@ -319,6 +322,8 @@ public class DataGetTest {
 
         long messageId = ConfigDataBuilder.getMessageId();
         assert messageId != 0;
+
+        messagesToBeDeleted.add(messageId);
 
         CovidItaData covidItaData = AsyncCall.getItalyData().map(covidItaData1 -> {
             covidItaData1.setDate(newToday);

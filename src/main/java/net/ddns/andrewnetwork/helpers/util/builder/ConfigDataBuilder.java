@@ -18,6 +18,12 @@ public class ConfigDataBuilder {
                 .commit();
     }
 
+    public static void clear() {
+        ConfigDataBuilder.getInstance()
+                .newData()
+                .commit();
+    }
+
     public static String getConfigDataString() {
         if (CONFIG_PATH == null || CONFIG_PATH.isEmpty()) {
             throw new IllegalArgumentException("Accessing CONFIG_PATH without setting it first.");
@@ -65,6 +71,66 @@ public class ConfigDataBuilder {
         return this;
     }
 
+    public ConfigDataBuilder putDaemonMode(boolean daemonMode) {
+        if (configData == null) {
+            throw new IllegalStateException("putDaemonMode() called without calling getData() first.");
+        }
+
+        configData.setDaemonMode(daemonMode);
+
+        return this;
+    }
+
+    public ConfigDataBuilder putDebugMode(boolean debugMode) {
+        if (configData == null) {
+            throw new IllegalStateException("putDebugMode() called without calling getData() first.");
+        }
+
+        configData.setDebugMode(debugMode);
+
+        return this;
+    }
+
+    public ConfigDataBuilder putCountry(String country) {
+        if (configData == null) {
+            throw new IllegalStateException("putCountry() called without calling getData() first.");
+        }
+
+        configData.setCountry(country);
+
+        return this;
+    }
+
+    public ConfigDataBuilder putLanguage(String language) {
+        if (configData == null) {
+            throw new IllegalStateException("putLanguage() called without calling getData() first.");
+        }
+
+        configData.setLanguage(language);
+
+        return this;
+    }
+
+    public ConfigDataBuilder putRegions(String[] regions) {
+        if (configData == null) {
+            throw new IllegalStateException("putRegions() called without calling getData() first.");
+        }
+
+        configData.setRegions(regions);
+
+        return this;
+    }
+
+    public ConfigDataBuilder putTimeInterval(int timeInterval) {
+        if (configData == null) {
+            throw new IllegalStateException("putTimeInterval() called without calling getData() first.");
+        }
+
+        configData.setTimeInterval(timeInterval);
+
+        return this;
+    }
+
     public ConfigDataBuilder putChannelId(long channelId) {
         if (configData == null) {
             throw new IllegalStateException("putChannelId() called without calling getData() first.");
@@ -91,6 +157,12 @@ public class ConfigDataBuilder {
 
     public ConfigDataBuilder getData() {
         this.configData = getConfigData();
+
+        return this;
+    }
+
+    private ConfigDataBuilder newData() {
+        this.configData = new ConfigData();
 
         return this;
     }
