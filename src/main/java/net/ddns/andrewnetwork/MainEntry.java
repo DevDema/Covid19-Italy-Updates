@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class MainEntry {
-    private static long DELAY = 5 * 60 * 1000L; // 5 MINUTES
+    private static long DELAY;
     private static Boolean DEBUG_MODE;
     private static Boolean DAEMON_MODE;
     private static final String OPTION_PATTERN = "-[a-z,A-Z]"; //pattern for specified option
@@ -323,6 +323,9 @@ public class MainEntry {
                 regionsData = configData.getRegions();
             }
 
+            if (DELAY == 0) {
+                DELAY = configData.getTimeInterval() * 60 * 1000L;
+            }
             TelegramHelper.setChannelId(configData.getChannelID());
         }
 
@@ -336,6 +339,10 @@ public class MainEntry {
 
         if (language == null) {
             language = "ITA";
+        }
+
+        if (DELAY == 0) {
+            DELAY = 5 * 60 * 1000L; //5 minutes
         }
 
         if (country == null || country.isEmpty()) {

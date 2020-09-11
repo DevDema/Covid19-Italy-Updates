@@ -16,7 +16,7 @@ public class ConfigData {
     private String[] regions;
     @SerializedName("language")
     private String language;
-    @SerializedName("cycling_interval")
+    @SerializedName("cycling_interval_minutes")
     private int timeInterval;
     @SerializedName("temporary_data")
     private TemporaryConfigData temporaryConfigData;
