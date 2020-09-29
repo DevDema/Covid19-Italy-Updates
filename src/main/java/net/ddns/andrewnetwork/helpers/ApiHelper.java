@@ -12,14 +12,13 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.logging.Logger;
-
-import static java.util.logging.Logger.GLOBAL_LOGGER_NAME;
 
 public final class ApiHelper {
 
     private static final String ITALY_DATA_URL = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-andamento-nazionale-latest.json";
+    private static final String ITALY_DATA_ALL_URL = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-andamento-nazionale.json";
     private static final String REGIONS_DATA_URL = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni-latest.json";
+    private static final String REGIONS_DATA_ALL_URL = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni.json";
 
     private static String readFromUrl(String url) throws IOException {
         InputStream is = new URL(url).openStream();
@@ -36,30 +35,35 @@ public final class ApiHelper {
 
     }
 
-    public CovidItaData getItalyData() {
+    private List<CovidItaData> getItaDataFrom(String italyDataUrl) throws IOException {
+        String data = readFromUrl(italyDataUrl);
 
-        try {
-            String data = readFromUrl(ITALY_DATA_URL);
-
-            List<CovidItaData> list =  JsonUtil.getGson().fromJson(data, new TypeToken<List<CovidItaData>>(){}.getType());
-
-            return list.get(0);
-        } catch (IOException e) {
-            Logger.getLogger(GLOBAL_LOGGER_NAME).warning("Malformed Italy data.");
-
-            return null;
-        }
+        return JsonUtil.getGson().fromJson(data, new TypeToken<List<CovidItaData>>() {
+        }.getType());
     }
 
-    public List<CovidRegionData> getRegionsData() {
-        try {
-            String data = readFromUrl(REGIONS_DATA_URL);
+    private List<CovidRegionData> getRegionsDataFrom(String regionsDataUrl) throws IOException {
+        String data = readFromUrl(regionsDataUrl);
 
-            return JsonUtil.getGson().fromJson(data, new TypeToken<List<CovidRegionData>>(){}.getType());
-        } catch (IOException e) {
-            Logger.getLogger(GLOBAL_LOGGER_NAME).warning("Malformed Italy Regions data.");
+        return JsonUtil.getGson().fromJson(data, new TypeToken<List<CovidRegionData>>() {
+        }.getType());
+    }
 
-            return null;
-        }
+    public CovidItaData getItalyData() throws IOException {
+
+        return getItaDataFrom(ITALY_DATA_URL).get(0);
+    }
+
+    public List<CovidItaData> getAllItalyData() throws IOException {
+
+        return getItaDataFrom(ITALY_DATA_ALL_URL);
+    }
+
+    public List<CovidRegionData> getRegionsData() throws IOException {
+        return getRegionsDataFrom(REGIONS_DATA_URL);
+    }
+
+    public List<CovidRegionData> getAllRegionsData() throws IOException {
+        return getRegionsDataFrom(REGIONS_DATA_ALL_URL);
     }
 }

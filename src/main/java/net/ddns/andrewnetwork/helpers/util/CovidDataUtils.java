@@ -17,19 +17,19 @@ public final class CovidDataUtils {
         return list.stream().filter(covidRegionData -> covidRegionData.getRegionLabel().equalsIgnoreCase(region)).findAny().orElse(null);
     }
 
-    public static Set<CovidRegionData> getRegionByLabel(Collection<CovidRegionData> list, String... regions) {
+    public static List<CovidRegionData> getRegionByLabel(Collection<CovidRegionData> list, String... regions) {
         return list.stream().filter(covidRegionData -> {
             boolean bool = false;
-            for(String region : regions) {
+            for (String region : regions) {
                 bool = covidRegionData.getRegionLabel().equalsIgnoreCase(region);
 
-                if(bool) {
+                if (bool) {
                     return true;
                 }
             }
 
             return bool;
-        }).collect(Collectors.toSet());
+        }).sorted((region1, region2) -> region1.getRegionLabel().compareToIgnoreCase(region2.getRegionLabel())).collect(Collectors.toList());
     }
 
     public static void computeVariationsList(Collection<CovidRegionData> newData, Collection<CovidRegionData> savedData) {
@@ -78,5 +78,13 @@ public final class CovidDataUtils {
 
     public static boolean areImpossibleDataNegative(CovidItaData covidItaData) {
         return covidItaData.getVariationTests() < 0 || covidItaData.getVariationTestedPeople() < 0 || covidItaData.getVariationTotalCases() < 0 || covidItaData.getVariationDeaths() < 0;
+    }
+
+    public static Map<Date, List<CovidRegionData>> groupRegionsByDate(List<CovidRegionData> fullList) {
+        return fullList.stream().collect(Collectors.groupingBy(CovidItaData::getDate));
+    }
+
+    public static Map<Date, List<CovidRegionData>> groupRegionsByDateFrom(List<CovidRegionData> fullList, Date date) {
+        return fullList.stream().filter(covidRegionData -> covidRegionData.getDate().compareTo(date) >= 0).collect(Collectors.groupingBy(CovidItaData::getDate));
     }
 }

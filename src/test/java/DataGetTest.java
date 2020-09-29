@@ -17,11 +17,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class DataGetTest {
 
+    private static final int ITALY_REGIONS_COUNT = 21; //INSTEAD OF 20 because Trento and Bolzano are separated.
     private final ApiHelper apiHelper = new ApiHelper();
     private static final CovidItaData today = new CovidItaData();
     private static final CovidItaData yesterday = new CovidItaData();
@@ -123,7 +126,7 @@ public class DataGetTest {
     }
 
     @Test
-    public void getItalyData() {
+    public void getItalyData() throws IOException {
         CovidItaData itaData = apiHelper.getItalyData();
 
         if (itaData != null) {
@@ -134,15 +137,75 @@ public class DataGetTest {
     }
 
     @Test
-    public void getRegionsData() {
+    public void getRegionsData() throws IOException {
         List<CovidRegionData> regionsData = apiHelper.getRegionsData();
-        Set<CovidRegionData> newData = CovidDataUtils.getRegionByLabel(regionsData, "Lombardia", "Puglia");
+        List<CovidRegionData> newData = CovidDataUtils.getRegionByLabel(regionsData, "Lombardia", "Puglia");
 
         if (newData != null) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Data: \n" + newData.toString());
         }
 
         assert newData != null && !newData.isEmpty();
+    }
+
+    @Test
+    public void getAllRegionsData() {
+        List<List<CovidRegionData>> iterableRegionsDate = AsyncCall.getAllRegionsData(new String[]{}).toList().toBlocking().first();
+
+        assert !iterableRegionsDate.isEmpty();
+
+        for (List<CovidRegionData> iterableRegions : iterableRegionsDate) {
+            assert iterableRegions.size() == ITALY_REGIONS_COUNT;
+        }
+
+        assert iterableRegionsDate.stream().collect(Collectors.toMap(regionData -> regionData.get(0).getDate(), p -> p, (p, q) -> p)).size() == iterableRegionsDate.size();
+    }
+
+    @Test
+    public void getAllRegionsDataFrom() {
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.DAY_OF_MONTH, 15);
+        calendar.set(Calendar.MONTH, 4); //MAY
+        calendar.set(Calendar.YEAR, 2020);
+        Date date = calendar.getTime();
+
+        List<List<CovidRegionData>> iterableRegionsDate = AsyncCall.getAllRegionsDataFrom(new String[]{}, date).toList().toBlocking().first();
+
+        assert !iterableRegionsDate.isEmpty();
+
+        for (List<CovidRegionData> iterableRegions : iterableRegionsDate) {
+            assert iterableRegions.size() == ITALY_REGIONS_COUNT;
+        }
+
+        assert iterableRegionsDate.stream().collect(Collectors.toMap(regionData -> regionData.get(0).getDate(), p -> p, (p, q) -> p)).size() == iterableRegionsDate.size();
+        assert iterableRegionsDate.stream().map(regionData -> regionData.get(0).getDate()).allMatch(date1 -> date1.compareTo(date) >= 0);
+    }
+
+    @Test
+    public void getAllItalyData() {
+        List<CovidItaData> iterableItalyDate = AsyncCall.getAllItalyData().toList().toBlocking().first();
+
+        assert !iterableItalyDate.isEmpty();
+
+        assert iterableItalyDate.stream().collect(Collectors.toMap(CovidItaData::getDate, p -> p, (p, q) -> p)).size() == iterableItalyDate.size();
+    }
+
+    @Test
+    public void getAllItalyDataFrom() {
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.DAY_OF_MONTH, 15);
+        calendar.set(Calendar.MONTH, 4); //MAY
+        calendar.set(Calendar.YEAR, 2020);
+        Date date = calendar.getTime();
+
+        List<CovidItaData> iterableItalyDate = AsyncCall.getAllItalyDataFrom(date).toList().toBlocking().first();
+
+        assert !iterableItalyDate.isEmpty();
+
+        assert iterableItalyDate.stream().collect(Collectors.toMap(CovidItaData::getDate, p -> p, (p, q) -> p)).size() == iterableItalyDate.size();
+        assert iterableItalyDate.stream().map(CovidItaData::getDate).allMatch(date1 -> date1.compareTo(date) >= 0);
     }
 
     @Test
@@ -337,17 +400,17 @@ public class DataGetTest {
         messagesToBeDeleted.add(messageId);
 
         String[] regions = new String[]{"Lombardia", "Puglia"};
-        Set<CovidRegionData> covidRegionDataSet = AsyncCall.getRegionsData(regions).map(covidRegionData -> {
+        List<CovidRegionData> covidRegionDataList = AsyncCall.getRegionsData(regions).map(covidRegionData -> {
             covidRegionData.forEach(covidRegionData1 -> covidRegionData1.setDate(newToday));
 
             CovidDataUtils.computeVariationsList(covidRegionData, yesterdayCovidRegionDataSet);
             return covidRegionData;
         }).toBlocking().value();
 
-        covidRegionDataSet.forEach(covidRegionData -> {
+        covidRegionDataList.forEach(covidRegionData -> {
             assert covidRegionData.getVariationDeaths() != 0;
         });
-        assert MainEntry.onDataLoaded(covidItaData, covidRegionDataSet);
+        assert MainEntry.onDataLoaded(covidItaData, covidRegionDataList);
         assert messageId == ConfigDataBuilder.getMessageId();
 
         //assert that you store just one data for each day

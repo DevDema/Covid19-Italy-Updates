@@ -19,6 +19,8 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static net.ddns.andrewnetwork.helpers.util.time.DateUtil.toCalendar;
+
 public class MainEntry {
     private static long DELAY;
     private static Boolean DEBUG_MODE;
@@ -51,20 +53,29 @@ public class MainEntry {
         } else {
             getData();
         }
-
-
     }
 
     private static void getData() {
         if (DEBUG_MODE) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("getting Data... Last Update:" +
-                    (SavedDataBuilder.getSavedData() != null && SavedDataBuilder.getSavedData().getLastDay() != null ? SavedDataBuilder.getSavedData().getLastDay().getDate() : "Never"));
+                    (SavedDataBuilder.getSavedData().getLastDay() != null ? SavedDataBuilder.getSavedData().getLastDay().getDate() : "Never"));
         }
 
-        MAIN_PRESENTER.getData(regionsData);
+        SavedDataDay day = SavedDataBuilder.getSavedData().getLastDay();
+
+        if (day == null) {
+            MAIN_PRESENTER.getLatestDataBy(regionsData);
+        } else {
+            Date date = day.getDate();
+            Calendar calendar = toCalendar(date);
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            date = calendar.getTime();
+
+            MAIN_PRESENTER.getAllDataByFrom(regionsData, date);
+        }
     }
 
-    public static boolean onDataLoaded(CovidItaData covidItaData, Set<CovidRegionData> covidRegionData) {
+    public static boolean onDataLoaded(CovidItaData covidItaData, Collection<CovidRegionData> covidRegionData) {
         SavedDataDay savedDataDay = SavedDataBuilder.getSavedData().getLastDay();
         CovidItaData covidItaSavedData = savedDataDay != null ? savedDataDay.getItalyDataSaved() : new CovidItaData();
         Set<CovidRegionData> covidRegionDataSavedList = savedDataDay != null

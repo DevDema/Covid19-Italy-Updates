@@ -10,8 +10,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 public class CachingTest {
 
@@ -40,13 +40,13 @@ public class CachingTest {
     }
 
     @Test
-    public void cacheCovidData() {
+    public void cacheCovidData() throws IOException {
         CovidItaData itaData = apiHelper.getItalyData();
         List<CovidRegionData> regionsData = apiHelper.getRegionsData();
 
         assert regionsData != null;
 
-        Set<CovidRegionData> newData = CovidDataUtils.getRegionByLabel(regionsData, "Lombardia", "Puglia");
+        List<CovidRegionData> newData = CovidDataUtils.getRegionByLabel(regionsData, "Lombardia", "Puglia");
 
         SavedDataBuilder.getInstance()
                 .getData()
