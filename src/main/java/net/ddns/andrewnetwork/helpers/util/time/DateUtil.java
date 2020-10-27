@@ -3,12 +3,14 @@ package net.ddns.andrewnetwork.helpers.util.time;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DateUtil {
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     private static final long DATE_TIME_24 = 24*60*60*1000;
+    private static final long DATE_TIME_24_CET_TO_CEST = 24*60*60*1000 + 60 * 60 * 1000;
 
     public static Date twoHourAfter(Date date) {
         return minutesAfter(date, 120);
@@ -67,7 +69,8 @@ public class DateUtil {
         dateCloned1 = DateUtil.setMidnight(dateCloned1);
         dateCloned2 = DateUtil.setMidnight(dateCloned2);
 
-        return Math.abs(dateCloned1.getTime() - dateCloned2.getTime()) == DATE_TIME_24;
+        long timeDifference = Math.abs(dateCloned1.getTime() - dateCloned2.getTime());
+        return timeDifference == DATE_TIME_24 || timeDifference == DATE_TIME_24_CET_TO_CEST;
     }
 
     public static boolean isTomorrowDay(Calendar date1, Calendar date2) {

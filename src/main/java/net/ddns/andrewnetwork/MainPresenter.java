@@ -2,6 +2,7 @@ package net.ddns.andrewnetwork;
 
 import net.ddns.andrewnetwork.helpers.async.AsyncCall;
 import net.ddns.andrewnetwork.helpers.util.Wrapper2;
+import net.ddns.andrewnetwork.helpers.util.time.DateUtil;
 import net.ddns.andrewnetwork.model.CovidItaData;
 import net.ddns.andrewnetwork.model.CovidRegionData;
 import rx.Observable;
@@ -21,7 +22,7 @@ public class MainPresenter {
 
         Set<Date> datesRegions = covidRegionDataList.stream().map(CovidItaData::getDate).collect(Collectors.toSet());
 
-        if (!datesRegions.stream().allMatch(dateRegion -> dateRegion.equals(covidItaData.getDate()))) {
+        if (!datesRegions.stream().allMatch(dateRegion -> DateUtil.isSameDay(dateRegion, covidItaData.getDate()))) {
             throw new IllegalArgumentException("Dates are not equals. You can't put together CovidItaData and CovidRegionData with different days.");
         }
 

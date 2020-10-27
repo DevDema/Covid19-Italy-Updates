@@ -1,4 +1,9 @@
 *.iml
-/.idea/
-/target/
-/out/
+.idea
+target/
+out/
+
+*.config
+dependency-reduced-pom.xml
+
+*.json

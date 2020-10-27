@@ -56,6 +56,8 @@ public final class AsyncCall {
 
                 for (CovidItaData covidItaData : newData) {
                     covidItaData = computeVariationsItalyData(covidItaData);
+
+                    DateUtil.setMidnight(covidItaData.getDate());
                     emitter.onNext(covidItaData);
                 }
 
@@ -98,6 +100,9 @@ public final class AsyncCall {
         for (Date keyDate : keyDates) {
             List<CovidRegionData> covidRegionDataList = regionsByDate.get(keyDate);
             covidRegionDataList = computeVariationsRegionsData(regions, covidRegionDataList);
+
+            covidRegionDataList.forEach(covidRegionData -> covidRegionData.setDate(DateUtil.setMidnight(covidRegionData.getDate())));
+
             emitter.onNext(covidRegionDataList);
         }
 
