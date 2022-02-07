@@ -8,6 +8,12 @@ The Telegram Bot (@AndrewPiBot) pushes into the [Covid19 Italian channel](https:
 
 Use Maven to configure this project dependencies.
 
+## Output sample
+
+The following is a sample output, showing Italy and Lombardy data (The language is Italian):
+
+![Output data](screenshots/output.png)
+
 ## Contributing
 Pull requests are welcome.
 For major changes, please open an issue first to discuss what you would like to change.\
